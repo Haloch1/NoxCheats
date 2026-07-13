@@ -21,12 +21,15 @@
       <a href="store.html">Products</a>
       <a href="reviews.html">Reviews</a>
       <a href="instructions.html">Setup</a>
-      <a href="account.html">Account</a>
+      <a href="desk.html" class="active">Help</a>
     </nav>
     <div class="nav-actions">
+      <button class="icon-btn" data-cart-open aria-label="Open cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><span class="count">0</span></button>
       <a class="icon-btn accent" href="account.html" aria-label="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      <button class="icon-btn nav-burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     </div>
   </div>
+  <div class="mobile-menu"><a href="store.html">Products</a><a href="reviews.html">Reviews</a><a href="instructions.html">Setup</a><a href="desk.html">Help</a><a href="account.html">Account</a></div>
 </header>
 
 <section class="page-wrap">
@@ -82,7 +85,17 @@
     </div>
   </div>
 </div>
+<div class="cart-overlay" data-cart-close></div>
+<aside class="cart-drawer" aria-label="Cart">
+  <div class="cart-head"><h3>Your cart</h3><button class="icon-btn" data-cart-close aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><b>Your cart is empty</b><p>Pick your cheat and the key lands on your account the moment payment clears.</p><a class="btn btn-primary" href="store.html">Browse the store</a></div>
+</aside>
+
+<footer class="footer"><div class="container"><div class="footer-bottom"><span>&copy; <span data-year>2026</span> Nox Cheats. All rights reserved.</span><div class="pay-badges"><span>VISA</span><span>MASTERCARD</span><span>AMEX</span><span>CRYPTO</span></div></div></div></footer>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/cart.js"></script>
 <script src="assets/js/desk.js"></script>
 </body>
 </html>
