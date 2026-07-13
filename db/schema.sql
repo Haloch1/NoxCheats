@@ -58,16 +58,20 @@ create index if not exists wallet_ledger_user_idx on public.wallet_ledger (user_
 
 -- ---- Reviews -------------------------------------------------------------
 -- Only created by the server after verifying the user bought the product.
+-- user_id is nullable: reviews pulled in from a Discord channel have no site user.
 create table if not exists public.reviews (
-  id           uuid primary key default gen_random_uuid(),
-  user_id      uuid not null references auth.users (id) on delete cascade,
-  product_slug text not null,
-  product_name text not null,
-  username     text not null,
-  rating       integer not null check (rating between 1 and 5),
-  review_text  text not null,
-  created_at   timestamptz not null default now()
+  id                 uuid primary key default gen_random_uuid(),
+  user_id            uuid references auth.users (id) on delete cascade,
+  product_slug       text not null,
+  product_name       text not null,
+  username           text not null,
+  rating             integer not null check (rating between 1 and 5),
+  review_text        text not null,
+  source             text not null default 'site',       -- 'site' or 'discord'
+  discord_message_id text,                                -- dedupe key for Discord-sourced reviews
+  created_at         timestamptz not null default now()
 );
+create unique index if not exists reviews_discord_msg_uniq on public.reviews (discord_message_id) where discord_message_id is not null;
 create index if not exists reviews_product_idx on public.reviews (product_slug, created_at desc);
 create unique index if not exists reviews_one_per_user_product on public.reviews (user_id, product_slug);
 

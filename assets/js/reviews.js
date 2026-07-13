@@ -29,7 +29,7 @@
           '<div class="review-head"><span class="review-stars">' + stars(r.rating) + '</span><span class="review-game">' + esc(r.product_name || "") + "</span></div>" +
           "<p>" + esc(r.review_text) + "</p>" +
           '<span class="review-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
-          esc(r.username) + " · Verified customer <em>" + when(r.created_at) + "</em></span>" +
+          esc(r.username) + " · " + (r.source === "discord" ? "Discord community" : "Verified customer") + " <em>" + when(r.created_at) + "</em></span>" +
         "</article>";
       }).join("");
     } catch (err) {

@@ -43,6 +43,8 @@ const {
   DISCORD_DESK_CHANNEL_ID = "",
   /* Webhook for the purchases channel — every paid order is posted here. */
   DISCORD_ORDER_WEBHOOK_URL = "",
+  /* Text channel the bot watches for community reviews to publish on the site. */
+  DISCORD_REVIEW_CHANNEL_ID = "",
   GOOGLE_CLIENT_ID = "",
   GOOGLE_CLIENT_SECRET = "",
   GOOGLE_REDIRECT_URI = `${SITE_URL}/api/auth/google/callback`,
@@ -67,6 +69,7 @@ const hasStripe = Boolean(STRIPE_SECRET_KEY);
 const hasDiscord = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET);
 const hasGoogle = Boolean(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET);
 const hasDeskBot = Boolean(DISCORD_BOT_TOKEN && DISCORD_DESK_CHANNEL_ID);
+const hasReviewBot = Boolean(DISCORD_BOT_TOKEN && DISCORD_REVIEW_CHANNEL_ID);
 /* Set once the Discord desk bot has logged in. Routes use it to mirror
    tickets to Discord threads; stays null when the bot isn't configured. */
 let deskBot = null;
@@ -928,7 +931,7 @@ app.post("/api/purchase-with-balance", requireUser, async (req, res) => {
 app.get("/api/reviews", async (req, res) => {
   if (!supabaseAdmin) return res.json({ reviews: [] });
   const { data } = await supabaseAdmin
-    .from("reviews").select("product_slug, product_name, username, rating, review_text, created_at")
+    .from("reviews").select("product_slug, product_name, username, rating, review_text, created_at, source")
     .order("created_at", { ascending: false }).limit(Number(req.query.limit) || 30);
   res.json({ reviews: data || [] });
 });
@@ -936,7 +939,7 @@ app.get("/api/reviews", async (req, res) => {
 app.get("/api/reviews/product/:slug", async (req, res) => {
   if (!supabaseAdmin) return res.json({ reviews: [] });
   const { data } = await supabaseAdmin
-    .from("reviews").select("username, rating, review_text, created_at")
+    .from("reviews").select("username, rating, review_text, created_at, source")
     .eq("product_slug", req.params.slug).order("created_at", { ascending: false }).limit(50);
   res.json({ reviews: data || [] });
 });
@@ -1296,8 +1299,38 @@ async function relayMessageToThread(ticket, authorLabel, body) {
   }
 }
 
+/* Turn a Discord review-channel message into a site review. */
+function parseDiscordReview(content) {
+  var text = String(content || "");
+  var rating = 5;
+  var starCount = (text.match(/★|⭐/g) || []).length;
+  if (starCount >= 1 && starCount <= 5) rating = starCount;
+  else {
+    var m = text.match(/\b([1-5])\s*(?:\/\s*5|stars?|★)/i) || text.match(/^\s*([1-5])\b/);
+    if (m) rating = Number(m[1]);
+  }
+  var clean = text.replace(/⭐|★/g, "").replace(/\b[1-5]\s*\/\s*5\b/g, "").trim();
+  return { rating, text: clean || text };
+}
+async function handleDiscordReview(message) {
+  const parsed = parseDiscordReview(message.content);
+  if (!parsed.text || parsed.text.length < 3) return;
+  const username = message.member?.displayName || message.author.username || "Discord member";
+  await supabaseAdmin.from("reviews").insert({
+    user_id: null,
+    product_slug: "discord",
+    product_name: "Discord community",
+    username,
+    rating: parsed.rating,
+    review_text: parsed.text.slice(0, 600),
+    source: "discord",
+    discord_message_id: message.id,
+  });
+  try { await message.react("✅"); } catch { /* reactions optional */ }
+}
+
 async function initDeskBot() {
-  if (!hasDeskBot) return;
+  if (!hasDeskBot && !hasReviewBot) return;
   let discord;
   try {
     discord = await import("discord.js");
@@ -1316,6 +1349,11 @@ async function initDeskBot() {
   client.on(Events.MessageCreate, async (message) => {
     try {
       if (message.author.bot) return;                       // ignore our own echoes
+      /* Community review channel -> publish on the reviews page. */
+      if (DISCORD_REVIEW_CHANNEL_ID && message.channel.id === DISCORD_REVIEW_CHANNEL_ID) {
+        await handleDiscordReview(message).catch((e) => console.error("[review bot]", e.message));
+        return;
+      }
       const ch = message.channel;
       if (!ch?.isThread?.() || ch.parentId !== DISCORD_DESK_CHANNEL_ID) return;
       const { data: ticket } = await supabaseAdmin
