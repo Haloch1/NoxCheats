@@ -45,6 +45,8 @@ const {
   DISCORD_ORDER_WEBHOOK_URL = "",
   /* Text channel the bot watches for community reviews to publish on the site. */
   DISCORD_REVIEW_CHANNEL_ID = "",
+  /* Discord user IDs (comma-separated) allowed to post freely in the review channel. */
+  DISCORD_BOT_ADMINS = "",
   /* Groq AI key for review moderation (optional). Without it, reviews auto-approve. */
   GROQ_API_KEY = "",
   GROQ_MODEL = "openai/gpt-oss-20b",
@@ -73,6 +75,7 @@ const hasDiscord = Boolean(DISCORD_CLIENT_ID && DISCORD_CLIENT_SECRET);
 const hasGoogle = Boolean(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET);
 const hasDeskBot = Boolean(DISCORD_BOT_TOKEN && DISCORD_DESK_CHANNEL_ID);
 const hasReviewBot = Boolean(DISCORD_BOT_TOKEN && DISCORD_REVIEW_CHANNEL_ID);
+const botAdmins = DISCORD_BOT_ADMINS.split(",").map((s) => s.trim()).filter(Boolean);
 /* Set once the Discord desk bot has logged in. Routes use it to mirror
    tickets to Discord threads; stays null when the bot isn't configured. */
 let deskBot = null;
@@ -1363,24 +1366,28 @@ async function handleDiscordReview(message) {
   const reviewText = String(message.content || "").trim();
   const username = message.member?.displayName || message.author.username || "Discord member";
   const authorId = message.author.id;
+  const isAdmin = botAdmins.includes(authorId);
   if (reviewText.length < 3) { try { await message.delete(); } catch { /* ignore */ } return; }
 
-  /* One review per person, ever. */
-  try {
-    const { data: existing } = await supabaseAdmin
-      .from("reviews").select("id").eq("source", "discord").eq("discord_user_id", authorId).limit(1).maybeSingle();
-    if (existing) {
-      try { await message.delete(); } catch { /* ignore */ }
-      try {
-        const warn = await message.channel.send(`${message.author}, you've already left a review — only one per person.`);
-        setTimeout(() => warn.delete().catch(() => {}), 6000);
-      } catch { /* ignore */ }
-      return;
-    }
-  } catch { /* if the check fails, fall through rather than block a genuine review */ }
+  /* One review per person, ever — admins can post as many as they like. */
+  if (!isAdmin) {
+    try {
+      const { data: existing } = await supabaseAdmin
+        .from("reviews").select("id").eq("source", "discord").eq("discord_user_id", authorId).limit(1).maybeSingle();
+      if (existing) {
+        try { await message.delete(); } catch { /* ignore */ }
+        try {
+          const warn = await message.channel.send(`${message.author}, you've already left a review — only one per person.`);
+          setTimeout(() => warn.delete().catch(() => {}), 6000);
+        } catch { /* ignore */ }
+        return;
+      }
+    } catch { /* if the check fails, fall through rather than block a genuine review */ }
+  }
 
+  /* Admins bypass moderation; everyone else is AI-checked. */
   const mod = await moderateReview(reviewText);
-  if (!mod.approved) {
+  if (!isAdmin && !mod.approved) {
     try { await message.delete(); } catch { /* ignore */ }
     try {
       const warn = await message.channel.send(`${message.author}, your review wasn't approved: ${mod.reason || "it didn't meet the guidelines."}`);
