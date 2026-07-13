@@ -3364,6 +3364,7 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 .gate-card .sub { color: var(--muted); font-size: 14px; line-height: 1.55; margin: 0 0 18px; }
 
 .desk-inbox { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+.desk-inbox[hidden] { display: none; }
 @media (max-width: 860px) { .desk-inbox { grid-template-columns: 1fr; } }
 .desk-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 18px; }
 .desk-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
