@@ -69,9 +69,11 @@ create table if not exists public.reviews (
   review_text        text not null,
   source             text not null default 'site',       -- 'site' or 'discord'
   discord_message_id text,                                -- dedupe key for Discord-sourced reviews
+  discord_user_id    text,                                -- one review per Discord user
   created_at         timestamptz not null default now()
 );
 create unique index if not exists reviews_discord_msg_uniq on public.reviews (discord_message_id) where discord_message_id is not null;
+create index if not exists reviews_discord_user_idx on public.reviews (discord_user_id) where discord_user_id is not null;
 create index if not exists reviews_product_idx on public.reviews (product_slug, created_at desc);
 create unique index if not exists reviews_one_per_user_product on public.reviews (user_id, product_slug);
 

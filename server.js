@@ -1308,6 +1308,8 @@ async function relayMessageToThread(ticket, authorLabel, body) {
   }
 }
 
+let lastReviewPromptId = null; // id of the current "leave a review" prompt in the review channel
+
 /* AI review moderation via Groq. Returns { approved, reason, rating }.
    Auto-approves (no rating) when GROQ_API_KEY isn't set, so reviews still work. */
 async function moderateReview(reviewText) {
@@ -1341,10 +1343,41 @@ async function moderateReview(reviewText) {
 /* Turn a Discord review-channel message into a published, formatted review:
    AI-moderate it, save it to the site, delete the raw message, and repost it as a
    clean "Verified Review" embed (needs the bot to have Manage Messages here). */
+async function postReviewPrompt(channel) {
+  try {
+    if (lastReviewPromptId) {
+      const old = await channel.messages.fetch(lastReviewPromptId).catch(() => null);
+      if (old) await old.delete().catch(() => {});
+    }
+    const prompt = await channel.send({
+      embeds: [{
+        description: "⭐ **Leave a review below!**\nJust type your honest review here and our bot will check it and post it.",
+        color: 0x2563eb,
+      }],
+    });
+    lastReviewPromptId = prompt.id;
+  } catch (err) { console.error("[review bot] prompt:", err.message); }
+}
+
 async function handleDiscordReview(message) {
   const reviewText = String(message.content || "").trim();
   const username = message.member?.displayName || message.author.username || "Discord member";
+  const authorId = message.author.id;
   if (reviewText.length < 3) { try { await message.delete(); } catch { /* ignore */ } return; }
+
+  /* One review per person, ever. */
+  try {
+    const { data: existing } = await supabaseAdmin
+      .from("reviews").select("id").eq("source", "discord").eq("discord_user_id", authorId).limit(1).maybeSingle();
+    if (existing) {
+      try { await message.delete(); } catch { /* ignore */ }
+      try {
+        const warn = await message.channel.send(`${message.author}, you've already left a review — only one per person.`);
+        setTimeout(() => warn.delete().catch(() => {}), 6000);
+      } catch { /* ignore */ }
+      return;
+    }
+  } catch { /* if the check fails, fall through rather than block a genuine review */ }
 
   const mod = await moderateReview(reviewText);
   if (!mod.approved) {
@@ -1367,14 +1400,16 @@ async function handleDiscordReview(message) {
       review_text: reviewText.slice(0, 600),
       source: "discord",
       discord_message_id: message.id,
+      discord_user_id: authorId,
     });
   } catch (err) { console.error("[review bot] insert:", err.message); }
 
+  const channel = message.channel;
   try { await message.delete(); } catch { /* bot needs Manage Messages permission */ }
   try {
     const stars = "⭐".repeat(rating);
     const avatar = message.author.displayAvatarURL ? message.author.displayAvatarURL({ size: 64 }) : null;
-    await message.channel.send({
+    await channel.send({
       embeds: [{
         author: avatar ? { name: username, icon_url: avatar } : { name: username },
         description: `${stars}\n\n${reviewText}`,
@@ -1384,6 +1419,9 @@ async function handleDiscordReview(message) {
       }],
     });
   } catch (err) { console.error("[review bot] repost:", err.message); }
+
+  /* Keep a fresh "leave a review" prompt pinned to the bottom of the channel. */
+  await postReviewPrompt(channel);
 }
 
 async function initDeskBot() {
