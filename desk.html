@@ -33,58 +33,57 @@
 </header>
 
 <section class="page-wrap">
-  <div data-gate hidden>
-    <div class="auth-card" style="max-width:440px;margin:40px auto;">
-      <h1 data-gate-title>Sign in required</h1>
-      <p class="sub" data-gate-msg>Sign in to open a support ticket.</p>
-      <a class="btn btn-primary btn-block" href="account.html">Go to sign in</a>
-    </div>
+  <div class="lead">
+    <span class="kicker">Support desk</span>
+    <h1 class="lead-title">Your tickets and replies, in one place</h1>
+    <p class="lead-sub">Open a ticket and our team answers right here. New replies, including ones sent from our Discord, show up live.</p>
   </div>
 
-  <div data-desk hidden>
-    <div class="dash-head">
-      <div><h1>Support desk</h1><p class="dash-user">Open a ticket and our team will reply here.</p></div>
-      <button class="btn btn-primary" data-new-ticket>New ticket</button>
-    </div>
+  <!-- signed-out gate -->
+  <div class="gate-card" data-gate hidden>
+    <div class="gate-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <h2 data-gate-title>Sign in to open a ticket</h2>
+    <p class="sub" data-gate-msg>Your desk inbox is tied to your account, so sign in to start a conversation with support.</p>
+    <a class="btn btn-primary" href="account.html">Go to sign in</a>
+  </div>
 
-    <div class="desk-grid">
-      <div class="ticket-list" data-ticket-list><p style="color:var(--muted)">Loading…</p></div>
-      <div class="thread" data-thread>
-        <div class="thread-msgs" data-thread-msgs><p style="color:var(--muted);margin:auto;">Select a ticket, or start a new one.</p></div>
-        <div class="thread-form" data-thread-form hidden>
-          <input type="text" data-thread-input placeholder="Type a reply…">
-          <button class="btn btn-primary" data-thread-send>Send</button>
-        </div>
+  <!-- desk inbox (two panel) -->
+  <div class="desk-inbox" data-desk hidden>
+    <aside class="desk-panel desk-list-panel">
+      <div class="desk-panel-head">
+        <div><span class="kicker">Your threads</span><h2>Conversations</h2></div>
+        <button class="btn btn-primary btn-sm" data-new-ticket>New ticket</button>
       </div>
-    </div>
+
+      <form class="desk-new" data-new-form hidden autocomplete="off">
+        <div class="field"><label>Subject</label><input type="text" data-nt-subject placeholder="What do you need help with?"></div>
+        <div class="field"><label>Message</label><textarea data-nt-message rows="4" placeholder="Share details: your order ID, the product, and what's happening."></textarea></div>
+        <p class="nox-msg" data-nt-msg hidden></p>
+        <div class="desk-new-actions">
+          <button class="btn btn-primary" type="button" data-nt-create>Create ticket</button>
+          <button class="btn btn-ghost" type="button" data-nt-cancel>Cancel</button>
+        </div>
+      </form>
+
+      <div class="ticket-list" data-ticket-list><p class="desk-empty">Loading…</p></div>
+    </aside>
+
+    <section class="desk-panel desk-thread-panel">
+      <div class="desk-thread-head">
+        <div><span class="kicker">Thread</span><h2 data-thread-title>Select a ticket</h2></div>
+        <span class="pill warn" data-thread-status hidden></span>
+      </div>
+      <div class="thread-msgs" data-thread-msgs>
+        <div class="desk-empty desk-empty-center">Pick a ticket on the left, or start a new one to reach the team.</div>
+      </div>
+      <div class="thread-form" data-thread-form hidden>
+        <input type="text" data-thread-input placeholder="Type a reply…">
+        <button class="btn btn-primary" data-thread-send>Send</button>
+      </div>
+    </section>
   </div>
 </section>
 
-<!-- new ticket modal -->
-<div class="nox-modal" data-ticket-modal hidden>
-  <div class="nox-modal-overlay" data-nt-cancel></div>
-  <div class="nox-modal-card" role="dialog" aria-modal="true" aria-labelledby="nt-title">
-    <button class="nox-modal-close" data-nt-cancel aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-    <span class="nox-modal-kicker">Support</span>
-    <h2 class="nox-modal-title" id="nt-title">New ticket</h2>
-    <p class="nox-modal-sub">Tell us what you need help with and our team will reply right here on your desk.</p>
-    <div class="field">
-      <label for="nt-subject">Subject</label>
-      <input id="nt-subject" type="text" data-nt-subject placeholder="What do you need help with?">
-    </div>
-    <div class="field">
-      <label for="nt-message">Message</label>
-      <textarea id="nt-message" data-nt-message rows="5" placeholder="Share as much detail as you can — your order ID, the product, and what's happening."></textarea>
-    </div>
-    <p class="nox-msg" data-nt-msg hidden></p>
-    <div class="nox-modal-actions">
-      <button class="btn btn-primary" data-nt-create>Create ticket</button>
-      <button class="btn btn-ghost" data-nt-cancel>Cancel</button>
-    </div>
-  </div>
-</div>
 <div class="cart-overlay" data-cart-close></div>
 <aside class="cart-drawer" aria-label="Cart">
   <div class="cart-head"><h3>Your cart</h3><button class="icon-btn" data-cart-close aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>

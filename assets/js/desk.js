@@ -1,4 +1,4 @@
-/* NOX CHEATS — support desk (member view). Members open tickets and chat with staff. */
+/* NOX CHEATS — support desk (member view). Two-panel inbox with live polling. */
 (function () {
   "use strict";
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
@@ -9,36 +9,60 @@
   var msgsEl = document.querySelector("[data-thread-msgs]");
   var formEl = document.querySelector("[data-thread-form]");
   var inputEl = document.querySelector("[data-thread-input]");
-  var modal = document.querySelector("[data-ticket-modal]");
+  var newForm = document.querySelector("[data-new-form]");
+  var threadTitle = document.querySelector("[data-thread-title]");
+  var threadStatus = document.querySelector("[data-thread-status]");
+  var subjEl = document.querySelector("[data-nt-subject]");
+  var bodyEl = document.querySelector("[data-nt-message]");
+  var ntMsg = document.querySelector("[data-nt-msg]");
+
   var currentId = null;
+  var currentSubject = "";
   var pollTimer = null;
   var lastCount = -1;
   function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+
+  function statusPill(el, status) {
+    if (!el) return;
+    el.hidden = false;
+    el.textContent = status;
+    el.className = "pill " + (status === "open" ? "warn" : "ok");
+  }
 
   async function loadTickets() {
     var res = await fetch("/api/desk/tickets");
     var data = await res.json();
     var tickets = data.tickets || [];
-    if (!tickets.length) { listEl.innerHTML = '<p style="color:var(--muted)">No tickets yet. Start one with “New ticket”.</p>'; return; }
+    if (!tickets.length) {
+      listEl.innerHTML = '<p class="desk-empty">No tickets yet. Start one with the New ticket button.</p>';
+      return;
+    }
     listEl.innerHTML = tickets.map(function (t) {
       return '<button class="ticket-item' + (t.id === currentId ? " on" : "") + '" data-ticket="' + t.id + '">' +
-        "<b>" + esc(t.subject) + '</b><span class="pill ' + (t.status === "open" ? "warn" : "ok") + '" style="margin-top:4px;">' + t.status + "</span></button>";
+        "<b>" + esc(t.subject) + "</b>" +
+        '<span class="pill ' + (t.status === "open" ? "warn" : "ok") + '">' + esc(t.status) + "</span>" +
+        "</button>";
     }).join("");
     listEl.querySelectorAll("[data-ticket]").forEach(function (b) {
-      b.addEventListener("click", function () { openTicket(b.getAttribute("data-ticket")); });
+      b.addEventListener("click", function () { openTicket(b.getAttribute("data-ticket"), b.querySelector("b").textContent); });
     });
   }
 
-  async function openTicket(id) {
+  async function openTicket(id, subject) {
     currentId = id;
+    currentSubject = subject || currentSubject;
     lastCount = -1;
+    if (threadTitle) threadTitle.textContent = currentSubject || "Ticket";
     loadTickets();
     var res = await fetch("/api/desk/tickets/" + id);
     var data = await res.json();
-    if (!res.ok) { msgsEl.innerHTML = '<p style="color:#b91c1c">' + esc(data.error) + "</p>"; return; }
+    if (!res.ok) { msgsEl.innerHTML = '<div class="desk-empty desk-empty-center" style="color:#b91c1c">' + esc(data.error) + "</div>"; return; }
+    if (data.ticket) {
+      if (threadTitle) threadTitle.textContent = data.ticket.subject;
+      statusPill(threadStatus, data.ticket.status);
+    }
     renderMessages(data.messages || []);
     formEl.hidden = false;
-    /* Poll so staff replies (including ones typed in Discord) show up live. */
     stopPolling();
     pollTimer = setInterval(refreshOpen, 8000);
   }
@@ -49,6 +73,7 @@
       var res = await fetch("/api/desk/tickets/" + currentId);
       if (!res.ok) return;
       var data = await res.json();
+      if (data.ticket) statusPill(threadStatus, data.ticket.status);
       var msgs = data.messages || [];
       if (msgs.length !== lastCount) renderMessages(msgs);
     } catch (e) { /* ignore transient errors */ }
@@ -56,9 +81,10 @@
 
   function renderMessages(messages) {
     lastCount = messages.length;
+    if (!messages.length) { msgsEl.innerHTML = '<div class="desk-empty desk-empty-center">No messages yet.</div>'; return; }
     msgsEl.innerHTML = messages.map(function (m) {
       return '<div class="msg ' + (m.is_staff ? "staff" : "them") + '"><span class="who">' + esc(m.author_name) + "</span>" + esc(m.body) + "</div>";
-    }).join("") || '<p style="color:var(--muted);margin:auto;">No messages yet.</p>';
+    }).join("");
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
@@ -71,35 +97,32 @@
     var res = await fetch("/api/desk/tickets/" + currentId + "/messages", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: body }),
     });
-    if (res.ok) openTicket(currentId);
+    if (res.ok) { lastCount = -1; refreshOpen(); }
   }
 
-  /* new ticket modal */
-  function openTicketModal() {
-    var m = document.querySelector("[data-nt-msg]");
-    if (m) { m.hidden = true; m.textContent = ""; }
-    modal.hidden = false;
-    var subj = document.querySelector("[data-nt-subject]");
-    if (subj) setTimeout(function () { subj.focus(); }, 30);
+  /* new ticket inline form */
+  function showNewForm() {
+    if (ntMsg) { ntMsg.hidden = true; ntMsg.textContent = ""; }
+    newForm.hidden = false;
+    if (subjEl) setTimeout(function () { subjEl.focus(); }, 30);
   }
-  function closeTicketModal() { modal.hidden = true; }
-  document.querySelector("[data-new-ticket]").addEventListener("click", openTicketModal);
-  document.querySelectorAll("[data-nt-cancel]").forEach(function (el) { el.addEventListener("click", closeTicketModal); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !modal.hidden) closeTicketModal(); });
+  function hideNewForm() { newForm.hidden = true; }
+  document.querySelector("[data-new-ticket]").addEventListener("click", function () {
+    if (newForm.hidden) showNewForm(); else hideNewForm();
+  });
+  document.querySelector("[data-nt-cancel]").addEventListener("click", hideNewForm);
   document.querySelector("[data-nt-create]").addEventListener("click", async function () {
-    var msg = document.querySelector("[data-nt-msg]");
-    var payload = { subject: document.querySelector("[data-nt-subject]").value, message: document.querySelector("[data-nt-message]").value };
+    var payload = { subject: subjEl.value, message: bodyEl.value };
     try {
       var res = await fetch("/api/desk/tickets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       var data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not create ticket.");
-      modal.hidden = true;
-      document.querySelector("[data-nt-subject]").value = "";
-      document.querySelector("[data-nt-message]").value = "";
+      subjEl.value = ""; bodyEl.value = "";
+      hideNewForm();
       await loadTickets();
-      openTicket(data.id);
+      openTicket(data.id, payload.subject);
     } catch (err) {
-      msg.textContent = err.message; msg.className = "nox-msg error"; msg.hidden = false;
+      ntMsg.textContent = err.message; ntMsg.className = "nox-msg error"; ntMsg.hidden = false;
     }
   });
 
