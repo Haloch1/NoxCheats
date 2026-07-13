@@ -1338,38 +1338,52 @@ async function moderateReview(reviewText) {
   }
 }
 
-/* Turn a Discord review-channel message into a site review. */
-function parseDiscordReview(content) {
-  var text = String(content || "");
-  var rating = 5;
-  var starCount = (text.match(/★|⭐/g) || []).length;
-  if (starCount >= 1 && starCount <= 5) rating = starCount;
-  else {
-    var m = text.match(/\b([1-5])\s*(?:\/\s*5|stars?|★)/i) || text.match(/^\s*([1-5])\b/);
-    if (m) rating = Number(m[1]);
-  }
-  var clean = text.replace(/⭐|★/g, "").replace(/\b[1-5]\s*\/\s*5\b/g, "").trim();
-  return { rating, text: clean || text };
-}
+/* Turn a Discord review-channel message into a published, formatted review:
+   AI-moderate it, save it to the site, delete the raw message, and repost it as a
+   clean "Verified Review" embed (needs the bot to have Manage Messages here). */
 async function handleDiscordReview(message) {
-  const parsed = parseDiscordReview(message.content);
-  if (!parsed.text || parsed.text.length < 3) return;
-  /* AI checks the message before it's published; reject -> ❌, approve -> publish + ✅. */
-  const mod = await moderateReview(parsed.text);
-  if (!mod.approved) { try { await message.react("❌"); } catch { /* ignore */ } return; }
-  const rating = mod.rating || parsed.rating;
+  const reviewText = String(message.content || "").trim();
   const username = message.member?.displayName || message.author.username || "Discord member";
-  await supabaseAdmin.from("reviews").insert({
-    user_id: null,
-    product_slug: "discord",
-    product_name: "Discord community",
-    username,
-    rating,
-    review_text: parsed.text.slice(0, 600),
-    source: "discord",
-    discord_message_id: message.id,
-  });
-  try { await message.react("✅"); } catch { /* reactions optional */ }
+  if (reviewText.length < 3) { try { await message.delete(); } catch { /* ignore */ } return; }
+
+  const mod = await moderateReview(reviewText);
+  if (!mod.approved) {
+    try { await message.delete(); } catch { /* ignore */ }
+    try {
+      const warn = await message.channel.send(`${message.author}, your review wasn't approved: ${mod.reason || "it didn't meet the guidelines."}`);
+      setTimeout(() => warn.delete().catch(() => {}), 6000);
+    } catch { /* ignore */ }
+    return;
+  }
+
+  const rating = Math.max(1, Math.min(5, mod.rating || 5));
+  try {
+    await supabaseAdmin.from("reviews").insert({
+      user_id: null,
+      product_slug: "discord",
+      product_name: "Discord community",
+      username,
+      rating,
+      review_text: reviewText.slice(0, 600),
+      source: "discord",
+      discord_message_id: message.id,
+    });
+  } catch (err) { console.error("[review bot] insert:", err.message); }
+
+  try { await message.delete(); } catch { /* bot needs Manage Messages permission */ }
+  try {
+    const stars = "⭐".repeat(rating);
+    const avatar = message.author.displayAvatarURL ? message.author.displayAvatarURL({ size: 64 }) : null;
+    await message.channel.send({
+      embeds: [{
+        author: avatar ? { name: username, icon_url: avatar } : { name: username },
+        description: `${stars}\n\n${reviewText}`,
+        color: 0x2563eb,
+        footer: { text: "Verified Review · Nox Cheats" },
+        timestamp: new Date().toISOString(),
+      }],
+    });
+  } catch (err) { console.error("[review bot] repost:", err.message); }
 }
 
 async function initDeskBot() {
