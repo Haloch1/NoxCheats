@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Nox Cheats</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">N</span>
+      <span class="brand-text"><span class="brand-name"><span class="nox">NOX</span> <span class="cheats">CHEATS</span></span><span class="brand-sub">Admin</span></span>
+    </a>
+    <div class="nav-actions"><a class="btn btn-ghost" href="account.html">Account</a></div>
+  </div>
+</header>
+
+<section class="page-wrap">
+  <div data-gate hidden>
+    <div class="auth-card" style="max-width:440px;margin:60px auto;">
+      <h1 data-gate-title>Checking access…</h1>
+      <p class="sub" data-gate-msg>One moment.</p>
+      <a class="btn btn-primary btn-block" href="account.html" data-gate-link hidden>Go to sign in</a>
+    </div>
+  </div>
+
+  <div data-admin hidden>
+    <div class="dash-head">
+      <h1>Admin panel</h1>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2);">
+        <input type="checkbox" data-store-toggle style="width:18px;height:18px;accent-color:var(--blue);"> Store open
+      </label>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><b data-stat-revenue>$0.00</b><span>revenue</span></div>
+      <div class="stat-card"><b data-stat-orders>0</b><span>orders</span></div>
+      <div class="stat-card"><b data-stat-keys>0</b><span>keys in stock</span></div>
+      <div class="stat-card"><b data-stat-tickets>0</b><span>open tickets</span></div>
+      <div class="stat-card"><b data-stat-reviews>0</b><span>reviews</span></div>
+    </div>
+
+    <div class="admin-tabs">
+      <button data-panel="orders" class="on">Orders</button>
+      <button data-panel="keys">License keys</button>
+      <button data-panel="users">Users</button>
+      <button data-panel="reviews">Reviews</button>
+      <button data-panel="tickets">Tickets</button>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="admin-panel on" data-panel-view="orders">
+      <div class="table-scroll"><table class="nox-table">
+        <thead><tr><th>Product</th><th>Option</th><th>Amount</th><th>Method</th><th>Status</th><th>Key</th><th>Date</th><th>Set status</th></tr></thead>
+        <tbody data-admin-orders><tr><td colspan="8" style="color:var(--muted)">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- KEYS -->
+    <div class="admin-panel" data-panel-view="keys">
+      <div class="key-form">
+        <strong style="font-family:var(--font-display);font-size:15px;color:var(--ink);">Add keys to inventory</strong>
+        <div class="row"><select data-key-product></select><select data-key-variant></select></div>
+        <textarea data-key-values placeholder="Paste one key per line…"></textarea>
+        <div><button class="btn btn-primary" data-key-add>Add keys</button> <span class="nox-msg" data-key-msg hidden style="display:inline-block;margin-left:10px;"></span></div>
+      </div>
+      <div class="table-scroll"><table class="nox-table">
+        <thead><tr><th>Product</th><th>Option</th><th>In stock</th><th>Sold</th></tr></thead>
+        <tbody data-admin-keys><tr><td colspan="4" style="color:var(--muted)">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- USERS -->
+    <div class="admin-panel" data-panel-view="users">
+      <div class="table-scroll"><table class="nox-table">
+        <thead><tr><th>Email</th><th>Username</th><th>Login</th><th>Role</th><th>Balance</th><th>Adjust ($)</th></tr></thead>
+        <tbody data-admin-users><tr><td colspan="6" style="color:var(--muted)">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="admin-panel" data-panel-view="reviews">
+      <div class="table-scroll"><table class="nox-table">
+        <thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Review</th><th>Date</th><th></th></tr></thead>
+        <tbody data-admin-reviews><tr><td colspan="6" style="color:var(--muted)">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- TICKETS -->
+    <div class="admin-panel" data-panel-view="tickets">
+      <div class="desk-grid">
+        <div class="ticket-list" data-admin-tickets><p style="color:var(--muted)">Loading…</p></div>
+        <div class="thread" data-admin-thread>
+          <div class="thread-msgs" data-admin-thread-msgs><p style="color:var(--muted);margin:auto;">Select a ticket to view and reply.</p></div>
+          <div class="thread-form" data-admin-thread-form hidden>
+            <input type="text" data-admin-thread-input placeholder="Reply as staff…">
+            <button class="btn btn-primary" data-admin-thread-send>Send</button>
+            <button class="btn btn-ghost" data-admin-thread-close>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

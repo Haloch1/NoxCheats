@@ -1,0 +1,23 @@
+{
+  "name": "nox-cheats",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Nox Cheats storefront — static frontend + Express backend (auth, Stripe checkout, license-key delivery, admin panel).",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.0",
+    "cookie-parser": "^1.4.7",
+    "discord.js": "^14.16.3",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "stripe": "^18.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
