@@ -29,33 +29,58 @@
       <button class="icon-btn nav-burger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     </div>
   </div>
-  <div class="mobile-menu"><a href="store.html">Products</a><a href="reviews.html">Reviews</a><a href="instructions.html">Setup</a><a href="account.html">Account</a></div>
+  <div class="mobile-menu"><a href="store.html">Products</a><a href="reviews.html">Reviews</a><a href="instructions.html">Setup</a><a href="desk.html">Help</a><a href="account.html">Account</a></div>
 </header>
 
 <section class="page-wrap">
   <div class="lead">
     <span class="kicker">Reviews</span>
-    <h1 class="lead-title">What players say about Nox</h1>
-    <p class="lead-sub">Verified reviews from real purchases. Only customers who bought a product can leave one, and Discord community reviews land here too.</p>
+    <h1 class="lead-title">Verified customer reviews</h1>
+    <p class="lead-sub">Only customers who bought a product can leave a review, and community reviews from our Discord land here too.</p>
   </div>
 
   <div class="rev-summary-band">
     <div><div class="big" data-rev-avg>—</div><div class="stars-lg">★★★★★</div></div>
-    <div style="color:var(--muted);font-size:14px;">Based on <b data-rev-count>0</b> verified reviews from real purchases.</div>
+    <div class="rev-summary-meta">Based on <b data-rev-count>0</b> verified reviews from real purchases.</div>
   </div>
 
-  <!-- write a review (signed-in + purchased only) -->
-  <div class="rev-write" data-rev-write hidden>
-    <h3>Write a review</h3>
-    <div class="star-picker" data-star-picker><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div>
-    <select data-rev-product></select>
-    <textarea data-rev-text placeholder="How did it go? Keep it useful for other players…" maxlength="600"></textarea>
-    <div style="margin-top:12px;"><button class="btn btn-primary" data-rev-submit>Submit review</button> <span class="nox-msg" data-rev-msg hidden style="display:inline-block;margin-left:10px;"></span></div>
+  <!-- your purchases to review -->
+  <div class="rev-section" data-rev-purchases hidden>
+    <h2 class="rev-section-title">Your purchases</h2>
+    <div class="purchases-grid" data-purchases-grid></div>
   </div>
-  <p class="nox-msg" data-rev-hint hidden style="margin-bottom:24px;"></p>
+  <p class="nox-msg rev-note" data-rev-hint hidden></p>
 
-  <div class="reviews-wall" data-reviews-wall><p style="color:var(--muted)">Loading reviews…</p></div>
+  <!-- all reviews -->
+  <div class="rev-section">
+    <h2 class="rev-section-title">All reviews</h2>
+    <div class="reviews-wall" data-reviews-wall><p class="rev-note">Loading reviews…</p></div>
+  </div>
 </section>
+
+<!-- write review modal -->
+<div class="nox-modal" data-review-modal hidden>
+  <div class="nox-modal-overlay" data-rev-close></div>
+  <div class="nox-modal-card" role="dialog" aria-modal="true">
+    <button class="nox-modal-close" data-rev-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <span class="nox-modal-kicker">Write a review</span>
+    <h2 class="nox-modal-title" data-rev-product>Product</h2>
+    <p class="nox-modal-sub">How did it go? Keep it useful for other players.</p>
+    <div class="field">
+      <label>Rating</label>
+      <div class="star-picker" data-star-picker><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div>
+    </div>
+    <div class="field">
+      <label>Your review</label>
+      <textarea data-rev-text rows="4" maxlength="600" placeholder="Share your experience so other players know what to expect…"></textarea>
+    </div>
+    <p class="nox-msg" data-rev-msg hidden></p>
+    <div class="nox-modal-actions">
+      <button class="btn btn-primary" data-rev-submit>Submit review</button>
+      <button class="btn btn-ghost" data-rev-close>Cancel</button>
+    </div>
+  </div>
+</div>
 
 <div class="cart-overlay" data-cart-close></div>
 <aside class="cart-drawer" aria-label="Cart">
@@ -63,7 +88,7 @@
   <div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg><b>Your cart is empty</b><p>Pick your cheat and the key lands on your account the moment payment clears.</p><a class="btn btn-primary" href="store.html">Browse the store</a></div>
 </aside>
 
-<footer class="footer"><div class="container"><div class="footer-bottom"><span>© <span data-year>2026</span> Nox Cheats. All rights reserved.</span><div class="pay-badges"><span>VISA</span><span>MASTERCARD</span><span>AMEX</span><span>CRYPTO</span></div></div></div></footer>
+<footer class="footer"><div class="container"><div class="footer-bottom"><span>&copy; <span data-year>2026</span> Nox Cheats. All rights reserved.</span><div class="pay-badges"><span>VISA</span><span>MASTERCARD</span><span>AMEX</span><span>CRYPTO</span></div></div></div></footer>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/main.js"></script>

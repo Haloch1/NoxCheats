@@ -3424,6 +3424,17 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 .member-panel-head .kicker { color: var(--blue); }
 .member-panel-head h2 { font-family: var(--font-display); font-size: 18px; color: var(--ink); margin: 2px 0 0; }
 
+/* ── reviews page: purchases grid + sections ── */
+.rev-summary-meta { color: var(--muted); font-size: 14px; }
+.rev-note { color: var(--muted); font-size: 14px; }
+.rev-section { margin-top: 30px; }
+.rev-section-title { font-family: var(--font-display); font-size: 20px; color: var(--ink); margin: 0 0 16px; }
+.purchases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+.purchase-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); box-shadow: var(--shadow-sm); padding: 16px 18px; }
+.purchase-card strong { display: block; color: var(--ink); font-size: 15px; margin-top: 3px; }
+.purchase-eyebrow { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--blue); }
+.nox-modal .star-picker { margin-top: 4px; }
+
 /* ---- product promo + pay-with-balance ---- */
 .pg-promo { display: flex; gap: 8px; margin-top: 12px; }
 .pg-promo input { flex: 1; min-width: 0; height: 42px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--surface); font-family: var(--font-mono); font-size: 13px; text-transform: uppercase; color: var(--ink); }

@@ -45,6 +45,9 @@ const {
   DISCORD_ORDER_WEBHOOK_URL = "",
   /* Text channel the bot watches for community reviews to publish on the site. */
   DISCORD_REVIEW_CHANNEL_ID = "",
+  /* Groq AI key for review moderation (optional). Without it, reviews auto-approve. */
+  GROQ_API_KEY = "",
+  GROQ_MODEL = "openai/gpt-oss-20b",
   GOOGLE_CLIENT_ID = "",
   GOOGLE_CLIENT_SECRET = "",
   GOOGLE_REDIRECT_URI = `${SITE_URL}/api/auth/google/callback`,
@@ -973,6 +976,12 @@ app.post("/api/reviews", requireUser, async (req, res) => {
     .eq("user_id", req.user.id).eq("product_slug", productSlug).eq("status", "fulfilled");
   if (!count) return res.status(403).json({ error: "You can only review products you've bought." });
 
+  /* AI moderation — reject trolling/spam, accept genuine reviews (auto-approves if no GROQ key). */
+  const mod = await moderateReview(String(text).trim());
+  if (!mod.approved) {
+    return res.status(400).json({ error: mod.reason ? ("Review not approved: " + mod.reason) : "Your review didn't pass automated moderation. Keep it genuine and on-topic." });
+  }
+
   const product = productBySlug.get(productSlug);
   const username = req.user.user_metadata?.username || req.user.email?.split("@")[0] || "Anonymous";
   const { error } = await supabaseAdmin.from("reviews").upsert({
@@ -1299,6 +1308,36 @@ async function relayMessageToThread(ticket, authorLabel, body) {
   }
 }
 
+/* AI review moderation via Groq. Returns { approved, reason, rating }.
+   Auto-approves (no rating) when GROQ_API_KEY isn't set, so reviews still work. */
+async function moderateReview(reviewText) {
+  if (!GROQ_API_KEY) return { approved: true, reason: null, rating: null };
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: "system", content: "You are a review moderator for a gaming software store called Nox Cheats. Do two things:\n1. Decide if the review is legitimate. Reject trolling, spam, gibberish, hate speech, threats, ads, or clearly fake reviews. Accept genuine opinions even if negative.\n2. Assign a star rating from 2 to 5 based on sentiment (never 1; most positive reviews get 5).\nRespond with ONLY valid JSON: {\"approved\": true, \"rating\": 5} or {\"approved\": false, \"reason\": \"short reason\", \"rating\": 2}" },
+          { role: "user", content: `Review: "${String(reviewText).slice(0, 800)}"` },
+        ],
+        temperature: 0.1,
+        max_tokens: 300,
+      }),
+    });
+    if (!response.ok) { console.error("[review moderation] Groq status", response.status); return { approved: true, reason: null, rating: null }; }
+    const data = await response.json();
+    const parsed = JSON.parse(data.choices?.[0]?.message?.content || "{}");
+    let rating = parseInt(parsed.rating, 10);
+    if (!(rating >= 1 && rating <= 5)) rating = null;
+    return { approved: Boolean(parsed.approved), reason: parsed.reason || null, rating };
+  } catch (err) {
+    console.error("[review moderation]", err.message);
+    return { approved: true, reason: null, rating: null };
+  }
+}
+
 /* Turn a Discord review-channel message into a site review. */
 function parseDiscordReview(content) {
   var text = String(content || "");
@@ -1315,13 +1354,17 @@ function parseDiscordReview(content) {
 async function handleDiscordReview(message) {
   const parsed = parseDiscordReview(message.content);
   if (!parsed.text || parsed.text.length < 3) return;
+  /* AI checks the message before it's published; reject -> ❌, approve -> publish + ✅. */
+  const mod = await moderateReview(parsed.text);
+  if (!mod.approved) { try { await message.react("❌"); } catch { /* ignore */ } return; }
+  const rating = mod.rating || parsed.rating;
   const username = message.member?.displayName || message.author.username || "Discord member";
   await supabaseAdmin.from("reviews").insert({
     user_id: null,
     product_slug: "discord",
     product_name: "Discord community",
     username,
-    rating: parsed.rating,
+    rating,
     review_text: parsed.text.slice(0, 600),
     source: "discord",
     discord_message_id: message.id,

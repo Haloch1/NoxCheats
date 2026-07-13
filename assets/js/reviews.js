@@ -1,4 +1,4 @@
-/* NOX CHEATS — reviews page. Lists real reviews and lets verified buyers post. */
+/* NOX CHEATS — reviews page: purchases-to-review grid, AI-moderated write modal, all-reviews wall. */
 (function () {
   "use strict";
   function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
@@ -10,79 +10,97 @@
   }
 
   var wall = document.querySelector("[data-reviews-wall]");
+  var purchasesSection = document.querySelector("[data-rev-purchases]");
+  var purchasesGrid = document.querySelector("[data-purchases-grid]");
+  var hint = document.querySelector("[data-rev-hint]");
+  var modal = document.querySelector("[data-review-modal]");
+  var modalProduct = document.querySelector("[data-rev-product]");
+  var textEl = document.querySelector("[data-rev-text]");
+  var msgEl = document.querySelector("[data-rev-msg]");
+  var picker = document.querySelector("[data-star-picker]");
+  var submitBtn = document.querySelector("[data-rev-submit]");
+  var currentSlug = null;
+  var chosen = 5;
+
+  function paint() { if (picker) picker.querySelectorAll("span").forEach(function (s) { s.classList.toggle("on", Number(s.getAttribute("data-v")) <= chosen); }); }
+  if (picker) picker.querySelectorAll("span").forEach(function (s) { s.addEventListener("click", function () { chosen = Number(s.getAttribute("data-v")); paint(); }); });
 
   async function loadWall() {
     try {
       var res = await fetch("/api/reviews?limit=60");
       var data = await res.json();
       var reviews = data.reviews || [];
+      var avgEl = document.querySelector("[data-rev-avg]");
+      var countEl = document.querySelector("[data-rev-count]");
       if (!reviews.length) {
-        wall.innerHTML = '<p style="color:var(--muted)">No reviews yet — be the first after your next purchase.</p>';
-        document.querySelector("[data-rev-avg]").textContent = "5.0";
+        wall.innerHTML = '<p class="rev-note">No reviews yet — be the first after your next purchase.</p>';
+        if (avgEl) avgEl.textContent = "5.0"; if (countEl) countEl.textContent = "0";
         return;
       }
       var avg = reviews.reduce(function (s, r) { return s + r.rating; }, 0) / reviews.length;
-      document.querySelector("[data-rev-avg]").textContent = avg.toFixed(1);
-      document.querySelector("[data-rev-count]").textContent = reviews.length;
+      if (avgEl) avgEl.textContent = avg.toFixed(1);
+      if (countEl) countEl.textContent = reviews.length;
       wall.innerHTML = reviews.map(function (r) {
+        var badge = r.source === "discord" ? "Discord community" : "Verified customer";
         return '<article class="review-card">' +
           '<div class="review-head"><span class="review-stars">' + stars(r.rating) + '</span><span class="review-game">' + esc(r.product_name || "") + "</span></div>" +
           "<p>" + esc(r.review_text) + "</p>" +
           '<span class="review-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
-          esc(r.username) + " · " + (r.source === "discord" ? "Discord community" : "Verified customer") + " <em>" + when(r.created_at) + "</em></span>" +
+          esc(r.username) + " · " + badge + " <em>" + when(r.created_at) + "</em></span>" +
         "</article>";
       }).join("");
     } catch (err) {
-      wall.innerHTML = '<p style="color:#b91c1c">Couldn\'t load reviews. Is the server running?</p>';
+      wall.innerHTML = '<p class="rev-note" style="color:#b91c1c">Couldn\'t load reviews. Is the server running?</p>';
     }
   }
 
-  /* star picker */
-  var chosen = 5;
-  var picker = document.querySelector("[data-star-picker]");
-  function paint() { picker.querySelectorAll("span").forEach(function (s) { s.classList.toggle("on", Number(s.getAttribute("data-v")) <= chosen); }); }
-  if (picker) {
-    picker.querySelectorAll("span").forEach(function (s) { s.addEventListener("click", function () { chosen = Number(s.getAttribute("data-v")); paint(); }); });
-    paint();
-  }
-
-  async function initWriter() {
+  async function loadPurchases() {
     try {
       var s = await (await fetch("/api/auth/session")).json();
-      var hint = document.querySelector("[data-rev-hint]");
-      if (!s.user) { hint.textContent = "Sign in and buy a product to leave a review."; hint.className = "nox-msg"; hint.hidden = false; return; }
+      if (!s.user) { purchasesSection.hidden = true; hint.textContent = "Sign in and buy a product to leave a review."; hint.hidden = false; return; }
       var el = await (await fetch("/api/reviews/eligible")).json();
       var eligible = el.eligible || [];
-      if (!eligible.length) { hint.textContent = "You can review products once you've purchased them."; hint.className = "nox-msg"; hint.hidden = false; return; }
-      var sel = document.querySelector("[data-rev-product]");
-      sel.innerHTML = eligible.map(function (p) { return '<option value="' + esc(p.productSlug) + '">' + esc(p.productName) + "</option>"; }).join("");
-      document.querySelector("[data-rev-write]").hidden = false;
-    } catch (e) {}
+      if (!eligible.length) { purchasesSection.hidden = true; hint.textContent = "You can leave a review once you've purchased a product."; hint.hidden = false; return; }
+      hint.hidden = true;
+      purchasesGrid.innerHTML = eligible.map(function (p) {
+        return '<div class="purchase-card"><div><span class="purchase-eyebrow">Purchased</span><strong>' + esc(p.productName) + "</strong></div>" +
+          '<button class="btn btn-primary btn-sm" data-review-slug="' + esc(p.productSlug) + '" data-review-name="' + esc(p.productName) + '">Write a review</button></div>';
+      }).join("");
+      purchasesGrid.querySelectorAll("[data-review-slug]").forEach(function (b) {
+        b.addEventListener("click", function () { openModal(b.getAttribute("data-review-slug"), b.getAttribute("data-review-name")); });
+      });
+      purchasesSection.hidden = false;
+    } catch (e) { /* ignore */ }
   }
 
-  var submit = document.querySelector("[data-rev-submit]");
-  if (submit) {
-    submit.addEventListener("click", async function () {
-      var msg = document.querySelector("[data-rev-msg]");
-      var payload = {
-        productSlug: document.querySelector("[data-rev-product]").value,
-        rating: chosen,
-        text: document.querySelector("[data-rev-text]").value,
-      };
-      submit.disabled = true;
-      try {
-        var res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-        var data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Could not submit.");
-        msg.textContent = "Thanks for your review!"; msg.className = "nox-msg success"; msg.hidden = false;
-        document.querySelector("[data-rev-text]").value = "";
-        loadWall();
-      } catch (err) {
-        msg.textContent = err.message; msg.className = "nox-msg error"; msg.hidden = false;
-      } finally { submit.disabled = false; }
-    });
+  function openModal(slug, name) {
+    currentSlug = slug; chosen = 5; paint();
+    if (modalProduct) modalProduct.textContent = name || "Your review";
+    if (textEl) textEl.value = "";
+    if (msgEl) { msgEl.hidden = true; msgEl.textContent = ""; }
+    modal.hidden = false;
+    if (textEl) setTimeout(function () { textEl.focus(); }, 30);
   }
+  function closeModal() { modal.hidden = true; }
+  document.querySelectorAll("[data-rev-close]").forEach(function (el) { el.addEventListener("click", closeModal); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && modal && !modal.hidden) closeModal(); });
+
+  if (submitBtn) submitBtn.addEventListener("click", async function () {
+    if (!currentSlug) return;
+    var payload = { productSlug: currentSlug, rating: chosen, text: textEl.value };
+    submitBtn.disabled = true;
+    try {
+      var res = await fetch("/api/reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not submit review.");
+      closeModal();
+      await loadWall();
+      await loadPurchases();
+    } catch (err) {
+      if (msgEl) { msgEl.textContent = err.message; msgEl.className = "nox-msg error"; msgEl.hidden = false; }
+    } finally { submitBtn.disabled = false; }
+  });
 
   loadWall();
-  initWriter();
+  loadPurchases();
 })();
