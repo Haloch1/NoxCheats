@@ -1043,6 +1043,16 @@ input[type="range"].menu-range::-moz-range-thumb {
   background: rgba(16, 185, 129, .14);
   border-color: rgba(16, 185, 129, .35);
 }
+.u-chip.warn {
+  color: var(--amber);
+  background: rgba(245, 158, 11, .14);
+  border-color: rgba(245, 158, 11, .35);
+}
+.u-chip.bad {
+  color: #f87171;
+  background: rgba(239, 68, 68, .14);
+  border-color: rgba(239, 68, 68, .35);
+}
 .u-chip.ghost {
   color: #8fa3cf;
   background: rgba(255, 255, 255, .05);

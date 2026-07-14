@@ -331,11 +331,22 @@
 
       onFirstView(mini, function () {
         miniStatus.textContent = "SCANNING";
+        miniStatus.classList.remove("done", "warn", "bad");
         var i = 0;
+        var fails = 0;      // any check that came back not-ok
+        var osOk = true;    // OS is a hard blocker — no Windows, no product
         (function next() {
           if (i >= miniRows.length) {
-            miniStatus.textContent = "COMPATIBLE";
-            miniStatus.classList.add("done");
+            if (!osOk) {
+              miniStatus.textContent = "NOT COMPATIBLE";
+              miniStatus.classList.add("bad");
+            } else if (fails) {
+              miniStatus.textContent = "PARTIAL";
+              miniStatus.classList.add("warn");
+            } else {
+              miniStatus.textContent = "COMPATIBLE";
+              miniStatus.classList.add("done");
+            }
             return;
           }
           var row = miniRows[i];
@@ -344,10 +355,12 @@
           val.textContent = "scanning…";
 
           setTimeout(function () {
-            var res = CHECKS[row.getAttribute("data-mini")]();
+            var key = row.getAttribute("data-mini");
+            var res = CHECKS[key]();
             row.classList.remove("scanning");
             row.classList.add(res.ok ? "done" : "bad");
             val.textContent = res.value;
+            if (!res.ok) { fails++; if (key === "os") osOk = false; }
             i++;
             if (sysBar) sysBar.style.width = Math.round((i / miniRows.length) * 100) + "%";
             next();
