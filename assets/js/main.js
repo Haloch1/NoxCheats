@@ -535,13 +535,22 @@
       gameGrid.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("visible"); });
     }
 
-    // hover spotlight for the new cards
+    // hover spotlight + whole-card click -> straight to that game's products
     gameGrid.querySelectorAll(".game-card").forEach(function (card) {
       card.addEventListener("pointermove", function (e) {
         var r = card.getBoundingClientRect();
         card.style.setProperty("--mx", ((e.clientX - r.left) / r.width) * 100 + "%");
         card.style.setProperty("--my", ((e.clientY - r.top) / r.height) * 100 + "%");
       });
+      var cat = card.getAttribute("data-cat");
+      if (cat) {
+        card.style.cursor = "pointer";
+        card.addEventListener("click", function (e) {
+          // let real links (cover, View button) behave normally
+          if (e.target.closest("a")) return;
+          window.location.href = "collection.html?game=" + cat;
+        });
+      }
     });
 
     /* ---- filters + search ---- */

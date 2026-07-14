@@ -3565,3 +3565,75 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 .docs-next .docs-next-label { display: block; font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-2); }
 .docs-next .docs-next-title { display: block; font-family: var(--font-display); font-size: 15px; color: var(--ink); font-weight: 700; margin-top: 2px; }
 .docs-next .docs-next-arrow { color: var(--blue); font-size: 16px; }
+
+/* ==========================================================================
+   PROFESSIONAL POLISH PASS — pricing panel, reviews page, support desk
+   (appended last so it wins the cascade)
+   ========================================================================== */
+
+/* ---- product buy panel: cleaner order-summary block ---- */
+.pg-buy { padding: 24px 26px; border-radius: var(--r-lg); }
+.pg-durations { gap: 8px; margin-bottom: 18px; }
+.dur { padding: 14px 16px; border-radius: 12px; }
+.dur-price { font-size: 17px; }
+
+/* promo row reads like a coupon field, not a raw input */
+.pg-promo { gap: 8px; margin: 0 0 4px; }
+.pg-promo input {
+  height: 46px; border-radius: 11px; border-color: var(--line-2);
+  font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em;
+}
+.pg-promo input::placeholder { text-transform: none; letter-spacing: 0; color: var(--muted-2); font-family: var(--font-sans, inherit); }
+.pg-promo input:focus { outline: none; border-color: var(--blue-bright); box-shadow: 0 0 0 3px rgba(59,130,246,.14); }
+.pg-promo button {
+  height: 46px; padding: 0 18px; border-radius: 11px;
+  border: 1px solid var(--blue); background: #fff; color: var(--blue);
+  font-weight: 700; transition: background .15s ease, color .15s ease;
+}
+.pg-promo button:hover { background: var(--blue); color: #fff; }
+
+/* total + actions grouped under a divider = an obvious "summary" */
+.pg-cta { display: block; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pg-total { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin-bottom: 16px; }
+.pg-total > span { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.pg-total b { margin-left: auto; font-size: 34px; letter-spacing: -.02em; }
+.pg-total em { flex-basis: 100%; text-align: left; font-size: 12px; color: var(--muted-2); }
+.pg-buy-actions { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.pg-buy-actions .btn { width: 100%; }
+@media (min-width: 480px) { .pg-buy-actions { grid-template-columns: 1.4fr 1fr; } }
+.pg-pay-balance { margin-top: 10px; }
+
+/* ---- reviews page: richer summary band + wall ---- */
+.rev-summary-band {
+  gap: 0; padding: 0; overflow: hidden;
+  background: linear-gradient(135deg, #eff5ff, var(--surface));
+  box-shadow: var(--shadow-sm);
+}
+.rev-summary-band > div:first-child {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 24px 34px; border-right: 1px solid var(--line);
+  background: rgba(255,255,255,.5);
+}
+.rev-summary-band .big { font-size: 54px; font-weight: 800; letter-spacing: -.02em; }
+.rev-summary-band .stars-lg { font-size: 20px; letter-spacing: 3px; }
+.rev-summary-meta { padding: 24px 30px; font-size: 15px; line-height: 1.6; }
+.rev-summary-meta b { color: var(--ink); }
+@media (max-width: 560px) {
+  .rev-summary-band { flex-direction: column; }
+  .rev-summary-band > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); width: 100%; }
+}
+.reviews-wall { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.review-card { border-radius: var(--r-lg); }
+.review-user em { color: var(--muted-2); font-style: normal; margin-left: auto; font-weight: 500; }
+
+/* ---- support desk: cleaner panels, bubbles, tickets ---- */
+.desk-panel { border-radius: var(--r-lg); }
+.ticket-item { border-radius: 12px; padding: 14px 16px; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease; }
+.ticket-item:hover { border-color: var(--blue-bright); background: var(--bg-soft); }
+.msg { max-width: 82%; padding: 11px 14px; border-radius: 14px; box-shadow: var(--shadow-sm); }
+.msg.them { border-bottom-right-radius: 5px; }
+.msg.staff { border: 1px solid var(--line); border-bottom-left-radius: 5px; }
+.thread-form { gap: 10px; }
+.thread-form input { height: 46px; border-radius: 12px; }
+.thread-form .btn { border-radius: 12px; padding: 0 20px; }
+.desk-thread-panel { border-radius: var(--r-lg); }
