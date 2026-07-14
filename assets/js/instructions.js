@@ -9,7 +9,7 @@
   var main = document.querySelector("[data-docs-main]");
   if (!nav || !main) return;
 
-  var DISCORD = "https://discord.gg/qHnjHFWwBv";
+  var DISCORD = "https://discord.gg/noxcheats";
   var DEFENDER_CONTROL = "https://2478166878-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FGuCxiU24GFjlOIduR6gg%2Fuploads%2FIFob8lhaivTRY2dC3dRF%2FDefender%20Control.zip?alt=media&token=8c8bfbd0-eea6-46ca-b334-24470282cc7c";
   var VISUAL_RUNTIMES = "https://2478166878-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FGuCxiU24GFjlOIduR6gg%2Fuploads%2FlwM21Nit9EiHnnLrcNRo%2FVisual-C-Runtimes-All-in-One-Feb-2024.zip?alt=media&token=7d608170-836d-4dbc-8968-e3405bd55b9e";
 
