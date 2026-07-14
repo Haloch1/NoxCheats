@@ -3637,3 +3637,90 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 .thread-form input { height: 46px; border-radius: 12px; }
 .thread-form .btn { border-radius: 12px; padding: 0 20px; }
 .desk-thread-panel { border-radius: var(--r-lg); }
+
+/* ==========================================================================
+   NAVBAR REDESIGN — cleaner, flatter, more professional (appended = wins)
+   ========================================================================== */
+.nav { padding: 14px 0; }
+.nav-inner {
+  height: 64px;
+  gap: 24px;
+  padding: 0 14px 0 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .82);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 22px -14px rgba(10, 15, 40, .28);
+}
+.nav.scrolled { padding: 10px 0; }
+.nav.scrolled .nav-inner {
+  background: rgba(255, 255, 255, .94);
+  border-color: var(--line-2);
+  box-shadow: 0 10px 30px -16px rgba(10, 15, 40, .3);
+}
+
+/* brand: tighter, drop the uppercase subtext clutter */
+.brand { gap: 11px; }
+.brand-mark { width: 40px; height: 40px; border-radius: 11px; font-size: 19px; box-shadow: 0 4px 12px -4px rgba(37, 99, 235, .5), inset 0 1px 0 rgba(255,255,255,.35); }
+.brand-name { font-size: 16.5px; letter-spacing: .04em; }
+.brand-sub { font-size: 10.5px; letter-spacing: .04em; color: var(--muted-2); }
+
+/* links: plain text, pill only on hover/active — no heavy inset capsule */
+.nav-links {
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.nav-links a {
+  padding: 9px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: 10px;
+}
+.nav-links a svg { width: 15px; height: 15px; opacity: .6; }
+.nav-links a:hover {
+  background: var(--bg-soft);
+  color: var(--ink);
+  box-shadow: none;
+  text-shadow: none;
+}
+.nav-links a:hover svg { opacity: .9; filter: none; }
+.nav-links a.active {
+  background: #eaf1ff;
+  color: var(--blue);
+  box-shadow: none;
+}
+.nav-links a.active svg { opacity: 1; }
+
+/* right actions: flat, quiet buttons */
+.nav-actions { gap: 8px; }
+.icon-btn {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  box-shadow: none;
+}
+.icon-btn:hover {
+  background: var(--bg-soft);
+  border-color: var(--line-2);
+  color: var(--blue);
+  transform: none;
+  box-shadow: none;
+}
+.icon-btn svg { width: 18px; height: 18px; }
+.icon-btn.accent {
+  background: var(--blue);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 12px -4px rgba(37, 99, 235, .5);
+}
+.icon-btn.accent:hover { background: var(--blue-strong); color: #fff; box-shadow: 0 6px 16px -4px rgba(37, 99, 235, .55); }
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .nav-burger { display: grid; }
+}
