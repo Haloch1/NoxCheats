@@ -1117,6 +1117,11 @@ app.post("/api/admin/tickets/:id/close", requireAdmin, async (req, res) => {
   await supabaseAdmin.from("tickets").update({ status: "closed", updated_at: new Date().toISOString() }).eq("id", req.params.id);
   res.json({ ok: true });
 });
+app.delete("/api/admin/tickets/:id", requireAdmin, async (req, res) => {
+  await supabaseAdmin.from("ticket_messages").delete().eq("ticket_id", req.params.id);
+  await supabaseAdmin.from("tickets").delete().eq("id", req.params.id);
+  res.json({ ok: true });
+});
 
 app.get("/api/admin/settings", requireAdmin, async (req, res) => {
   res.json({ storeOpen: await storeOpen() });

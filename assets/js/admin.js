@@ -192,6 +192,15 @@
     await fetch("/api/admin/tickets/" + curTicket + "/close", { method: "POST" });
     loadTickets(); loadStats();
   });
+  document.querySelector("[data-admin-thread-delete]").addEventListener("click", async function () {
+    if (!curTicket) return;
+    if (!confirm("Delete this ticket and its messages permanently?")) return;
+    await fetch("/api/admin/tickets/" + curTicket, { method: "DELETE" });
+    curTicket = null;
+    document.querySelector("[data-admin-thread-msgs]").innerHTML = '<p style="color:var(--muted);margin:auto;">Select a ticket to view and reply.</p>';
+    document.querySelector("[data-admin-thread-form]").hidden = true;
+    loadTickets(); loadStats();
+  });
 
   /* ---- boot ---- */
   (async function init() {
