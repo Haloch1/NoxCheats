@@ -39,6 +39,7 @@
     return '' +
       '<article class="prod-card reveal ' + delay + '" data-name="' + p.name.toLowerCase() + '">' +
         '<a class="prod-cover ' + p.cover + '" href="' + href + '">' +
+          window.NOX.productImg(p) +
           '<span class="cover-mono">' + mono(p.name) + '</span>' +
           ribbon +
           '<span class="cover-tag">' + game.title.split(" ")[0].toUpperCase() + '</span>' +

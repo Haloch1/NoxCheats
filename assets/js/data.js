@@ -1824,6 +1824,17 @@ window.NOX = (function () {
 
   function fromPrice(p) { return (p.from || 0).toFixed(2); }
 
+  /* Per-product photo: loads assets/img/products/<slug>.png, falls back to
+     .jpg, then removes itself so the gradient + monogram cover shows. Drop a
+     file named after the product slug to give it a real picture. */
+  function productImg(p) {
+    if (!p || !p.slug) return "";
+    var s = p.slug;
+    var alt = (p.name || "").replace(/"/g, "");
+    return '<img class="prod-photo" src="assets/img/products/' + s + '.png" alt="' + alt + '" loading="lazy" ' +
+      'onerror="if(!this.dataset.j){this.dataset.j=1;this.src=\'assets/img/products/' + s + '.jpg\';}else{this.remove();}">';
+  }
+
   return {
     games: GAMES,
     list: PRODUCTS,
@@ -1836,5 +1847,6 @@ window.NOX = (function () {
     reviewData: reviewData,
     related: related,
     fromPrice: fromPrice,
+    productImg: productImg,
   };
 })();

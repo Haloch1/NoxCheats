@@ -35,15 +35,7 @@
 
   var defaultDur = 0; // durations() is sorted cheapest-first, so open on the lowest price
 
-  /* ---- gallery thumbnails (gradient placeholders) ---- */
-  var thumbs = "";
-  for (var t = 0; t < 4; t++) {
-    thumbs += '<button class="pg-thumb ' + p.cover + (t === 0 ? " on" : "") + '" data-thumb="' + t + '">' +
-      (t === 0 ? '<span class="pg-thumb-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>' : '<span class="pg-thumb-mono">' + mono(p.name) + '</span>') +
-      '</button>';
-  }
-
-  /* ---- duration options ---- (variant slug must match the backend catalog,
+  /* ---- duration options ----(variant slug must match the backend catalog,
      which derives it from the same slugify(name)) */
   var durHTML = durs.map(function (d, i) {
     return '<button class="dur' + (i === defaultDur ? " on" : "") + (d.tag ? " has-tag" : "") +
@@ -89,6 +81,7 @@
     var rst = STATUS[r.status] || STATUS.undetected;
     var priceTxt = "from $" + r.from.toFixed(2);
     return '<a class="rel-card ' + r.cover + '" href="product.html?id=' + r.slug + '">' +
+      window.NOX.productImg(r) +
       '<span class="cover-mono">' + mono(r.name) + '</span>' +
       '<span class="status-badge ' + rst.cls + '"><i></i>' + rst.label + '</span>' +
       '<span class="cover-shine"></span>' +
@@ -115,17 +108,9 @@
         // media
         '<div class="pg-media reveal">' +
           '<div class="pg-stage ' + p.cover + '">' +
+            window.NOX.productImg(p) +
             '<span class="cover-mono">' + mono(p.name) + '</span>' +
             '<span class="cover-shine"></span>' +
-            '<span class="pg-stage-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>' +
-            '<div class="pg-stage-title">' + p.name + '</div>' +
-          '</div>' +
-          '<div class="pg-thumbs">' + thumbs + '</div>' +
-          '<div class="pg-highlight">' +
-            '<span class="pg-highlight-kicker"><i></i>From the lobby</span>' +
-            '<div class="pg-highlight-stars stars">' + stars(5) + '</div>' +
-            '<p class="pg-highlight-quote">“' + rev.samples[0].body + '”</p>' +
-            '<div class="pg-highlight-by">' + rev.samples[0].name + ' · Verified customer on ' + p.name + '</div>' +
           '</div>' +
         '</div>' +
         // buy panel
@@ -350,15 +335,6 @@
       }
     });
   }
-  // gallery thumbs
-  var stage = main.querySelector(".pg-stage");
-  main.querySelectorAll(".pg-thumb").forEach(function (thumb) {
-    thumb.addEventListener("click", function () {
-      main.querySelectorAll(".pg-thumb").forEach(function (t) { t.classList.remove("on"); });
-      thumb.classList.add("on");
-    });
-  });
-
   // reveal + spotlight (main.js only wired elements present at load; re-run for injected ones)
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (es) {

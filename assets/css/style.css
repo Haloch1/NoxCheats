@@ -3639,6 +3639,23 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 .desk-thread-panel { border-radius: var(--r-lg); }
 
 /* ==========================================================================
+   PER-PRODUCT PHOTO — fills the cover; if the file is missing it removes
+   itself (see NOX.productImg) and the gradient + monogram shows instead.
+   ========================================================================== */
+.prod-cover, .pg-stage, .rel-card { position: relative; overflow: hidden; }
+.prod-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  z-index: 3;
+  display: block;
+}
+/* when a real photo is present it sits above the monogram/shine automatically */
+
+/* ==========================================================================
    NAVBAR REDESIGN — cleaner, flatter, more professional (appended = wins)
    ========================================================================== */
 .nav { padding: 14px 0; }
