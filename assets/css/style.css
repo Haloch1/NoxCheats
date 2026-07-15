@@ -3734,10 +3734,18 @@ body.cart-open .cart-drawer { transform: translateX(0); }
    ========================================================================== */
 .game-photo {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center bottom; z-index: 0;
+  object-fit: cover; object-position: center center; z-index: 0;
 }
 /* drop the grid texture over real card art */
 .game-cover:has(.game-photo)::before { display: none; }
+/* match the card ratio to the composed 4:3 key-art so nothing gets cropped off */
+.game-cover:has(.game-photo) { aspect-ratio: 4 / 3; }
+
+/* homepage lineup cards: use the same composed art */
+.pop-card { position: relative; overflow: hidden; }
+.pop-card:has(.game-photo) { aspect-ratio: 4 / 3; }
+.pop-card:has(.game-photo) .cover-mono,
+.pop-card:has(.game-photo) .pop-info h3 { display: none; }
 
 /* no bottom white bar — hover dims the card and shows View */
 .coll-foot { display: none; }
