@@ -52,8 +52,7 @@
     var items = g.items.map(function (it) {
       return '<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' + it + '</li>';
     }).join("");
-    return '<article class="feat-block reveal ' + (gi % 2 ? "d1" : "") + '">' +
-      '<div class="feat-visual ' + p.cover + '"><span class="cover-mono">' + mono(g.title) + '</span><span class="feat-visual-label">' + g.title.toUpperCase() + '</span></div>' +
+    return '<article class="feat-block feat-block-notext reveal ' + (gi % 2 ? "d1" : "") + '">' +
       '<div class="feat-detail"><h3>' + g.title + '</h3>' + (g.desc ? '<p>' + g.desc + '</p>' : '') + '<ul class="feat-list">' + items + '</ul></div>' +
     '</article>';
   }).join("");
