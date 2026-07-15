@@ -507,7 +507,7 @@
       return '' +
         '<article class="game-card collection reveal ' + delay + (popular ? " featured" : "") + '" data-cat="' + p.cat + '" data-name="' + p.name.toLowerCase() + '">' +
           '<a class="game-cover ' + p.cover + '" href="collection.html?game=' + p.cat + '#products">' +
-            '<img class="game-photo" src="assets/img/games/' + p.cat + '.jpg" alt="" loading="lazy" onerror="if(!this.dataset.j){this.dataset.j=1;this.src=\'assets/img/games/' + p.cat + '.png\';}else{this.remove();}">' +
+            '<img class="game-photo" src="assets/img/games/' + p.cat + '.webp" alt="" loading="lazy" onerror="this.remove()">' +
             '<span class="cover-mono">' + monogram(p.name) + '</span>' +
             (popular ? '<span class="popular-flag">★ Most popular</span>' : '') +
             '<span class="status-badge ' + st.cls + '"><i></i>' + st.label + '</span>' +
@@ -629,7 +629,7 @@
       var st = POP_STATUS[c.status] || POP_STATUS.undetected;
       var delay = ["", "d1", "d2"][i % 3];
       return '<a class="pop-card reveal ' + delay + (i === 0 ? " featured" : "") + ' ' + c.cover + '" href="collection.html?game=' + c.slug + '#products">' +
-        '<img class="game-photo" src="assets/img/games/' + c.slug + '.jpg" alt="" loading="lazy" onerror="if(!this.dataset.j){this.dataset.j=1;this.src=\'assets/img/games/' + c.slug + '.png\';}else{this.remove();}">' +
+        '<img class="game-photo" src="assets/img/games/' + c.slug + '.webp" alt="" loading="lazy" onerror="this.remove()">' +
         (i === 0 ? '<span class="pop-flag">★ Most popular</span>' : '') +
         '<span class="status-badge ' + st.cls + '"><i></i>' + st.label + '</span>' +
         '<span class="cover-mono">' + popMono(c.title) + '</span>' +

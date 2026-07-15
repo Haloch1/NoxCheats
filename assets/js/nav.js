@@ -21,6 +21,6 @@
     img.className = "brand-logo-img";
     img.alt = "Nox Cheats";
     img.onload = function () { m.classList.add("has-logo"); m.appendChild(img); };
-    img.src = "assets/img/logo.png";
+    img.src = "assets/img/logo.webp";
   });
 })();

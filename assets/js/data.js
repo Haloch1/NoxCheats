@@ -1831,8 +1831,7 @@ window.NOX = (function () {
     if (!p || !p.slug) return "";
     var s = p.slug;
     var alt = (p.name || "").replace(/"/g, "");
-    return '<img class="prod-photo" src="assets/img/products/' + s + '.png" alt="' + alt + '" loading="lazy" ' +
-      'onerror="if(!this.dataset.j){this.dataset.j=1;this.src=\'assets/img/products/' + s + '.jpg\';}else{this.remove();}">';
+    return '<img class="prod-photo" src="assets/img/products/' + s + '.webp" alt="' + alt + '" loading="lazy" onerror="this.remove()">';
   }
 
   /* ---- hardcoded reviews (always shown, no backend needed) ---- */
