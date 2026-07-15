@@ -2274,15 +2274,26 @@ input[type="range"].nox-range::-moz-range-thumb {
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--ink-2);
   margin-bottom: 14px;
-  transition: color .16s ease, gap .16s ease;
+  padding: 9px 16px 9px 13px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: color .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease;
 }
 .back-link svg { width: 16px; height: 16px; }
-.back-link:hover { color: var(--blue); gap: 9px; }
+.back-link:hover {
+  color: var(--blue);
+  border-color: var(--blue-bright);
+  background: var(--bg-soft);
+  box-shadow: 0 4px 12px -6px rgba(37,99,235,.5);
+  transform: translateY(-1px);
+}
 .store-search.wide { min-width: 340px; flex: 1; max-width: 460px; }
 
 .prod-grid {
