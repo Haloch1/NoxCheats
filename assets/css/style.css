@@ -3707,17 +3707,21 @@ body.cart-open .cart-drawer { transform: translateX(0); }
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; z-index: 0;
 }
-/* keep the grid, scrim and content above the photo */
-.game-cover > *:not(.game-photo) { position: relative; z-index: 2; }
-.game-logo {
-  position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
-  max-width: 62%; max-height: 46%; object-fit: contain; z-index: 2;
+/* lift only the static title/count wrapper above the photo — do NOT change
+   the positioned badges/logo (that broke their placement before) */
+.game-cover > div { position: relative; z-index: 2; }
+.game-cover .cover-mono, .game-cover .cover-shine { z-index: 2; }
+.game-cover .status-badge, .game-cover .popular-flag { z-index: 3; }
+.game-cover .game-logo {
+  position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);
+  max-width: 54%; max-height: 34%; object-fit: contain; z-index: 3;
   filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
   transition: transform .25s ease;
 }
-.game-card:hover .game-logo { transform: translate(-50%, -50%) scale(1.05); }
-/* if a real logo is present, drop the ghosted initials */
-.game-cover:has(.game-logo) .cover-mono { display: none; }
+.game-card:hover .game-cover .game-logo { transform: translate(-50%, -50%) scale(1.05); }
+/* with a real logo, drop the ghosted initials and the redundant text title */
+.game-cover:has(.game-logo) .cover-mono,
+.game-cover:has(.game-logo) .cover-title { display: none; }
 /* richer default backdrop: deeper bottom, soft top sheen, inner glow */
 .game-cover {
   box-shadow:
