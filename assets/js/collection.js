@@ -24,6 +24,16 @@
   document.title = game.title + " — Nox Cheats";
   document.getElementById("prodCount").textContent = list.length;
 
+  /* game switcher — jump straight between games */
+  var switchEl = document.getElementById("gameSwitch");
+  if (switchEl) {
+    var order = Object.keys(window.NOX.games).filter(function (g) { return window.NOX.byGame(g).length; });
+    switchEl.innerHTML = order.map(function (g) {
+      var gm = window.NOX.games[g];
+      return '<a class="game-chip' + (g === slug ? " on" : "") + '" href="collection.html?game=' + g + '#products">' + gm.title + "</a>";
+    }).join("");
+  }
+
   function mono(name) {
     var w = name.replace(/[^A-Za-z ]/g, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
     return (w.length >= 2 ? w[0][0] + w[1][0] : w[0].slice(0, 2)).toUpperCase();

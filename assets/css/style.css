@@ -2287,6 +2287,23 @@ input[type="range"].nox-range::-moz-range-thumb {
   transition: color .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease;
 }
 .back-link svg { width: 16px; height: 16px; }
+
+/* brand mark: real logo swaps in for the "N" when assets/img/logo.png exists */
+.brand-mark { position: relative; }
+.brand-mark.has-logo { background: none; box-shadow: none; overflow: hidden; color: transparent; }
+.brand-mark.has-logo .brand-logo-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+
+/* game switcher on the products page — jump between games */
+.game-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.game-chip {
+  display: inline-flex; align-items: center; height: 34px; padding: 0 15px;
+  border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface);
+  color: var(--ink-2); font-size: 13px; font-weight: 600; white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s ease, background .15s ease, color .15s ease, transform .15s ease;
+}
+.game-chip:hover { border-color: var(--blue-bright); color: var(--blue); transform: translateY(-1px); }
+.game-chip.on { background: var(--blue); border-color: transparent; color: #fff; box-shadow: 0 4px 12px -4px rgba(37,99,235,.5); }
 .back-link:hover {
   color: var(--blue);
   border-color: var(--blue-bright);
