@@ -17,3 +17,6 @@ _*.mjs
 
 # build artifacts
 dist/
+
+# raw source renders (kept locally, not shipped)
+assets/img/products/images/
