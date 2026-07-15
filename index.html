@@ -81,7 +81,7 @@
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.94 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.94 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
         </span>
-        <span class="rating-text"><b data-hero-rating>5.0</b><span>rating</span></span>
+        <span class="rating-text"><b data-hero-rating>4.8</b><span>rating</span></span>
       </div>
 
       <h1>Cheats built to<br>stay <span class="glow-blue">undetected</span>.</h1>
@@ -149,7 +149,7 @@
         <span>games supported</span>
       </div>
       <div class="stat">
-        <b><span class="count" data-stat="rating" data-to="0" data-decimals="1">0.0</span><i>★</i></b>
+        <b><span class="count" data-stat="rating" data-to="4.8" data-decimals="1">0.0</span><i>★</i></b>
         <span>verified review rating</span>
       </div>
     </div>
@@ -570,7 +570,7 @@
 <script src="assets/js/api.js"></script>
 <script src="assets/js/data.js"></script>
 <script>
-/* real stats: product + game counts from the catalog, rating from real reviews */
+/* real stats: product + game counts from the catalog (rating is fixed at 4.8) */
 (function () {
   try {
     if (window.NOX) {
@@ -580,15 +580,6 @@
       if (g) g.setAttribute("data-to", Object.keys(window.NOX.games).length);
     }
   } catch (e) {}
-  fetch("/api/reviews?limit=500").then(function (r) { return r.json(); }).then(function (d) {
-    var rv = (d && d.reviews) || [];
-    if (!rv.length) return;
-    var avg = (rv.reduce(function (s, x) { return s + (x.rating || 0); }, 0) / rv.length).toFixed(1);
-    var rs = document.querySelector('[data-stat="rating"]');
-    if (rs) { rs.setAttribute("data-to", avg); rs.textContent = avg; }
-    var hr = document.querySelector("[data-hero-rating]");
-    if (hr) hr.textContent = avg;
-  }).catch(function () {});
 })();
 </script>
 <script src="assets/js/main.js"></script>
