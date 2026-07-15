@@ -2291,7 +2291,33 @@ input[type="range"].nox-range::-moz-range-thumb {
 /* brand mark: real logo swaps in for the "N" when assets/img/logo.png exists */
 .brand-mark { position: relative; }
 .brand-mark.has-logo { background: none; box-shadow: none; overflow: hidden; color: transparent; }
-.brand-mark.has-logo .brand-logo-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.brand-mark.has-logo .brand-logo-img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit;
+  animation: logoPop .6s cubic-bezier(.2, .8, .3, 1.25) both;
+  transition: transform .25s ease;
+}
+/* subtle hover tilt/pop */
+.brand:hover .brand-mark.has-logo .brand-logo-img { transform: scale(1.07) rotate(-4deg); }
+/* periodic light sweep across the mark */
+.brand-mark.has-logo::after {
+  content: ""; position: absolute; top: -30%; left: -70%; width: 45%; height: 160%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: rotate(18deg); pointer-events: none; z-index: 2;
+  animation: logoShine 5.5s ease-in-out infinite; animation-delay: 1.4s;
+}
+@keyframes logoPop {
+  0% { transform: scale(.55) rotate(-14deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes logoShine {
+  0% { left: -70%; }
+  14% { left: 150%; }
+  100% { left: 150%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark.has-logo .brand-logo-img { animation: none; }
+  .brand-mark.has-logo::after { animation: none; display: none; }
+}
 
 /* game switcher on the products page — jump between games */
 .game-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
