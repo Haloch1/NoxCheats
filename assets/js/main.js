@@ -507,6 +507,8 @@
       return '' +
         '<article class="game-card collection reveal ' + delay + (popular ? " featured" : "") + '" data-cat="' + p.cat + '" data-name="' + p.name.toLowerCase() + '">' +
           '<a class="game-cover ' + p.cover + '" href="collection.html?game=' + p.cat + '#products">' +
+            '<img class="game-photo" src="assets/img/games/' + p.cat + '.jpg" alt="" loading="lazy" onerror="if(!this.dataset.j){this.dataset.j=1;this.src=\'assets/img/games/' + p.cat + '.png\';}else{this.remove();}">' +
+            '<img class="game-logo" src="assets/img/games/' + p.cat + '-logo.png" alt="' + p.name + ' logo" loading="lazy" onerror="this.remove()">' +
             '<span class="cover-mono">' + monogram(p.name) + '</span>' +
             (popular ? '<span class="popular-flag">★ Most popular</span>' : '') +
             '<span class="status-badge ' + st.cls + '"><i></i>' + st.label + '</span>' +

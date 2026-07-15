@@ -3700,6 +3700,33 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 #products { scroll-margin-top: 100px; }
 
 /* ==========================================================================
+   CATEGORY (game) CARDS — per-game background photo + logo, richer default
+   Drop assets/img/games/<slug>.jpg (background) and <slug>-logo.png (logo).
+   ========================================================================== */
+.game-photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: 0;
+}
+/* keep the grid, scrim and content above the photo */
+.game-cover > *:not(.game-photo) { position: relative; z-index: 2; }
+.game-logo {
+  position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+  max-width: 62%; max-height: 46%; object-fit: contain; z-index: 2;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
+  transition: transform .25s ease;
+}
+.game-card:hover .game-logo { transform: translate(-50%, -50%) scale(1.05); }
+/* if a real logo is present, drop the ghosted initials */
+.game-cover:has(.game-logo) .cover-mono { display: none; }
+/* richer default backdrop: deeper bottom, soft top sheen, inner glow */
+.game-cover {
+  box-shadow:
+    inset 0 -70px 90px -46px rgba(4, 8, 22, .78),
+    inset 0 44px 80px -54px rgba(255, 255, 255, .2),
+    inset 0 0 0 1px rgba(255, 255, 255, .05);
+}
+
+/* ==========================================================================
    NAVBAR REDESIGN — cleaner, flatter, more professional (appended = wins)
    ========================================================================== */
 .nav { padding: 14px 0; }
