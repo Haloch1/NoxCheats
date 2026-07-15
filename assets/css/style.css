@@ -3717,8 +3717,10 @@ body.cart-open .cart-drawer { transform: translateX(0); }
    ========================================================================== */
 .game-photo {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; z-index: 0;
+  object-fit: cover; object-position: center bottom; z-index: 0;
 }
+/* drop the grid texture over real card art */
+.game-cover:has(.game-photo)::before { display: none; }
 /* lift only the static title/count wrapper above the photo — do NOT change
    the positioned badges/logo (that broke their placement before) */
 .game-cover > div { position: relative; z-index: 2; }
@@ -3731,9 +3733,9 @@ body.cart-open .cart-drawer { transform: translateX(0); }
   transition: transform .25s ease;
 }
 .game-card:hover .game-cover .game-logo { transform: translate(-50%, -50%) scale(1.05); }
-/* with a real logo, drop the ghosted initials and the redundant text title */
-.game-cover:has(.game-logo) .cover-mono,
-.game-cover:has(.game-logo) .cover-title { display: none; }
+/* with real card art, drop the ghosted initials and the redundant text title */
+.game-cover:has(.game-photo) .cover-mono,
+.game-cover:has(.game-photo) .cover-title { display: none; }
 /* richer default backdrop: deeper bottom, soft top sheen, inner glow */
 .game-cover {
   box-shadow:
