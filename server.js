@@ -1123,6 +1123,23 @@ app.delete("/api/admin/tickets/:id", requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
+/* ── live "online now" counter: real concurrent visitors ──
+   Each open tab pings every 30s with a stable client id; we count the
+   distinct ids seen in the last 75s. No fake numbers. */
+const onlineSeen = new Map(); // clientId -> lastSeenMs
+const ONLINE_WINDOW_MS = 75 * 1000;
+function onlineCount() {
+  const cutoff = Date.now() - ONLINE_WINDOW_MS;
+  for (const [k, v] of onlineSeen) if (v < cutoff) onlineSeen.delete(k);
+  return onlineSeen.size;
+}
+app.post("/api/online/ping", (req, res) => {
+  const id = String(req.body?.id || req.ip || "").slice(0, 80);
+  if (id) onlineSeen.set(id, Date.now());
+  res.json({ online: onlineCount() });
+});
+app.get("/api/online", (req, res) => res.json({ online: onlineCount() }));
+
 app.get("/api/admin/settings", requireAdmin, async (req, res) => {
   res.json({ storeOpen: await storeOpen() });
 });
