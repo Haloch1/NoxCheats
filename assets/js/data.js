@@ -623,7 +623,7 @@ window.NOX = (function () {
     "name": "Ignite - Apex Legends",
     "game": "apex",
     "category": "Apex Legends",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "Precision aim assist for Apex Legends with triggerbot, full player and world ESP, and movement automation.",
     "variants": [
@@ -743,7 +743,7 @@ window.NOX = (function () {
     "name": "Ancient - Apex Legends",
     "game": "apex",
     "category": "Apex Legends",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "Apex Legends setup with aim tools, player ESP, and configuration sharing.",
     "variants": [
@@ -813,7 +813,7 @@ window.NOX = (function () {
     "name": "Coffee Chams - EFT",
     "game": "tarkov",
     "category": "Escape From Tarkov",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "Chams-focused EFT tool with loot-through-walls, recoil and stamina modifications, and FOV controls.",
     "variants": [
@@ -878,7 +878,7 @@ window.NOX = (function () {
     "name": "Coffee Lite - EFT",
     "game": "tarkov",
     "category": "Escape From Tarkov",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "Full-featured EFT suite with silent aimbot, deep exploits, loot and player ESP, and customizable loot filtering.",
     "variants": [
@@ -977,7 +977,7 @@ window.NOX = (function () {
     "name": "Ancient - EFT External",
     "game": "tarkov",
     "category": "Escape From Tarkov",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "External EFT setup with aim tools, player ESP, and loot awareness.",
     "variants": [
@@ -1124,7 +1124,7 @@ window.NOX = (function () {
     "name": "Linked NFA",
     "game": "accounts",
     "category": "Accounts",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "Not full-access ranked-ready account option for users who want a quick account handoff.",
     "variants": [
@@ -1175,7 +1175,7 @@ window.NOX = (function () {
     "name": "Stacked PC Account",
     "game": "accounts",
     "category": "Accounts",
-    "status": "soon",
+    "status": "undetected",
     "ribbon": null,
     "summary": "Stacked linked Rainbow Six Siege PC account with ranked-ready inventory and account notes.",
     "variants": [
