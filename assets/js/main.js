@@ -580,9 +580,12 @@
 
     chips.forEach(function (chip) {
       chip.addEventListener("click", function () {
+        var f = chip.getAttribute("data-filter");
+        // a specific game chip jumps straight to that game's products
+        if (f && f !== "all") { window.location.href = "collection.html?game=" + f + "#products"; return; }
         chips.forEach(function (c) { c.classList.remove("on"); });
         chip.classList.add("on");
-        activeFilter = chip.getAttribute("data-filter");
+        activeFilter = f;
         apply();
       });
     });
