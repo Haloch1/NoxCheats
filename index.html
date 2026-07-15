@@ -81,13 +81,13 @@
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.94 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
           <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.94 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
         </span>
-        <span class="rating-text"><b>4.8</b><span>rating</span></span>
+        <span class="rating-text"><b data-hero-rating>5.0</b><span>rating</span></span>
       </div>
 
       <h1>Cheats built to<br>stay <span class="glow-blue">undetected</span>.</h1>
 
       <p class="hero-sub">
-        <b>61,000+ players</b> run Nox for aimbot, ESP and wallhacks. Kernel-level,
+        Aimbot, ESP and wallhacks that stay hidden. Kernel-level,
         cleared against every patch, with instant key delivery and real support around the clock.
       </p>
 
@@ -141,16 +141,16 @@
   <div class="container">
     <div class="stats-band reveal" id="statsBand">
       <div class="stat">
-        <b><span class="count" data-to="61" data-suffix="K+">0</span></b>
-        <span>players trust Nox</span>
+        <b><span class="count" data-stat="products" data-to="0">0</span></b>
+        <span>products in the store</span>
       </div>
       <div class="stat">
-        <b><span class="count" data-prefix="&lt;" data-to="30" data-suffix="s">0</span></b>
-        <span>key delivery time</span>
+        <b><span class="count" data-stat="games" data-to="0">0</span></b>
+        <span>games supported</span>
       </div>
       <div class="stat">
-        <b><span class="count" data-to="4.8" data-decimals="1">0.0</span><i>★</i></b>
-        <span>rated across the community</span>
+        <b><span class="count" data-stat="rating" data-to="0" data-decimals="1">0.0</span><i>★</i></b>
+        <span>verified review rating</span>
       </div>
     </div>
   </div>
@@ -569,6 +569,28 @@
 </aside>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/data.js"></script>
+<script>
+/* real stats: product + game counts from the catalog, rating from real reviews */
+(function () {
+  try {
+    if (window.NOX) {
+      var p = document.querySelector('[data-stat="products"]');
+      if (p) p.setAttribute("data-to", window.NOX.list.length);
+      var g = document.querySelector('[data-stat="games"]');
+      if (g) g.setAttribute("data-to", Object.keys(window.NOX.games).length);
+    }
+  } catch (e) {}
+  fetch("/api/reviews?limit=500").then(function (r) { return r.json(); }).then(function (d) {
+    var rv = (d && d.reviews) || [];
+    if (!rv.length) return;
+    var avg = (rv.reduce(function (s, x) { return s + (x.rating || 0); }, 0) / rv.length).toFixed(1);
+    var rs = document.querySelector('[data-stat="rating"]');
+    if (rs) { rs.setAttribute("data-to", avg); rs.textContent = avg; }
+    var hr = document.querySelector("[data-hero-rating]");
+    if (hr) hr.textContent = avg;
+  }).catch(function () {});
+})();
+</script>
 <script src="assets/js/main.js"></script>
 <script src="assets/js/cart.js"></script>
 <script src="assets/js/nav.js"></script>
