@@ -717,21 +717,18 @@
      from the backend when available (keeps static ones as fallback).
      ============================================================ */
   var homeReviews = document.querySelector("[data-home-reviews]");
-  if (homeReviews) {
-    fetch("/api/reviews?limit=6").then(function (r) { return r.json(); }).then(function (data) {
-      var reviews = (data && data.reviews) || [];
-      if (!reviews.length) return; // keep the static fallback cards
-      function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
-      homeReviews.innerHTML = reviews.slice(0, 3).map(function (rv, i) {
-        var stars = "★★★★★".slice(0, Math.round(rv.rating)) + "☆☆☆☆☆".slice(0, 5 - Math.round(rv.rating));
-        return '<article class="review-card reveal ' + ["", "d1", "d2"][i % 3] + '">' +
-          '<div class="review-head"><span class="review-stars">' + stars + '</span><span class="review-game">' + esc(rv.product_name || "") + "</span></div>" +
-          "<p>" + esc(rv.review_text) + "</p>" +
-          '<span class="review-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
-          esc(rv.username) + " · Verified customer</span></article>";
-      }).join("");
-      homeReviews.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("visible"); });
-    }).catch(function () {});
+  if (homeReviews && window.NOX && window.NOX.reviews && window.NOX.reviews.length) {
+    var reviews = window.NOX.reviews;
+    function esc(s) { var d = document.createElement("div"); d.textContent = String(s == null ? "" : s); return d.innerHTML; }
+    homeReviews.innerHTML = reviews.slice(0, 3).map(function (rv, i) {
+      var stars = "★★★★★".slice(0, Math.round(rv.rating)) + "☆☆☆☆☆".slice(0, 5 - Math.round(rv.rating));
+      return '<article class="review-card reveal ' + ["", "d1", "d2"][i % 3] + '">' +
+        '<div class="review-head"><span class="review-stars">' + stars + '</span><span class="review-game">' + esc(rv.product_name || "") + "</span></div>" +
+        "<p>" + esc(rv.review_text) + "</p>" +
+        '<span class="review-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
+        esc(rv.username) + " · Verified customer</span></article>";
+    }).join("");
+    homeReviews.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("visible"); });
   }
 
   /* ---------------- footer year ---------------- */

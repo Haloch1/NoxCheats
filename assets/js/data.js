@@ -1835,6 +1835,32 @@ window.NOX = (function () {
       'onerror="if(!this.dataset.j){this.dataset.j=1;this.src=\'assets/img/products/' + s + '.jpg\';}else{this.remove();}">';
   }
 
+  /* ---- hardcoded reviews (always shown, no backend needed) ---- */
+  var REVIEW_RAW = [
+    ["r6-frost", "R6 Frost", "sh3ron", 5, "Set up in minutes with support and it has run flawlessly since. FPS barely drops.", 3],
+    ["crusader-r6", "Crusader R6", "xav_ttv", 5, "Replied to my ticket fast and walked me through the whole config. Super easy.", 6],
+    ["vega-r6-external", "Vega R6 External", "kaizr", 5, "Climbed two divisions in a week and nobody has said a word. Visuals are clean.", 9],
+    ["r6-recoil-private", "R6 Recoil Private", "marc3lo", 5, "Recoil is basically gone, sprays feel like a laser now. Worth it.", 2],
+    ["r6-unlock-all", "R6 Unlock All", "Driftwood", 4, "Unlocked everything no issues, took a few minutes. Would have liked faster delivery but happy.", 14],
+    ["rust-ignite", "Rust Ignite", "Nyx_04", 5, "Key hit my account seconds after paying. Loader just works, no messing around.", 5],
+    ["rust-krush", "Rust Krush", "tobi_zz", 5, "No crashes, no stutters, config saved between sessions. Really happy with it.", 20],
+    ["ignite-apex", "Ignite Apex", "priyakz", 5, "Set the aim to legit and it reads totally human on clips. Insane value.", 4],
+    ["ancient-apex", "Ancient Apex", "amara_exe", 4, "Running it daily and still clean. Followed the anti-ban tips and had no scares.", 25],
+    ["fortnite-full", "Fortnite Full", "dev0n", 5, "First cheat I have ever used and I got it going alone. Instructions were dead simple.", 7],
+    ["fortnite-ignite-aimbot", "Fortnite Ignite", "sasha_fps", 5, "Cheaper than what I used before and honestly better. The ESP is really clean.", 11],
+    ["ancient-eft", "Ancient EFT", "st3vo", 5, "Instant delivery, clean menu and the loot ESP is a game changer in raids.", 16],
+    ["eft-coffee-chams", "EFT Coffee Chams", "rin_htz", 5, "Chams are crisp and readable, spotted every PMC before they saw me.", 8],
+    ["xim-spoofer", "Nox Spoofer", "colehz", 5, "Got unbanned hardware side and back in within the hour. TPM spoof worked perfect.", 12],
+    ["spoofer-verse-perm", "Verse Perm Spoofer", "milotk", 5, "Permanent spoof did exactly what it says, clean HWID and no traces left.", 1]
+  ];
+  var SEED_REVIEWS = REVIEW_RAW.map(function (r) {
+    return {
+      product_slug: r[0], product_name: r[1], username: r[2],
+      rating: r[3], review_text: r[4], source: "community",
+      created_at: new Date(Date.now() - r[5] * 86400000).toISOString()
+    };
+  });
+
   return {
     games: GAMES,
     list: PRODUCTS,
@@ -1848,5 +1874,6 @@ window.NOX = (function () {
     related: related,
     fromPrice: fromPrice,
     productImg: productImg,
+    reviews: SEED_REVIEWS,
   };
 })();

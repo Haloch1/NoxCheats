@@ -25,32 +25,25 @@
   function paint() { if (picker) picker.querySelectorAll("span").forEach(function (s) { s.classList.toggle("on", Number(s.getAttribute("data-v")) <= chosen); }); }
   if (picker) picker.querySelectorAll("span").forEach(function (s) { s.addEventListener("click", function () { chosen = Number(s.getAttribute("data-v")); paint(); }); });
 
-  async function loadWall() {
-    try {
-      var res = await fetch("/api/reviews?limit=60");
-      var data = await res.json();
-      var reviews = data.reviews || [];
-      var avgEl = document.querySelector("[data-rev-avg]");
-      var countEl = document.querySelector("[data-rev-count]");
-      if (!reviews.length) {
-        wall.innerHTML = '<p class="rev-note">No reviews yet — be the first after your next purchase.</p>';
-        if (avgEl) avgEl.textContent = "4.8"; if (countEl) countEl.textContent = "0";
-        return;
-      }
-      if (avgEl) avgEl.textContent = "4.8";
-      if (countEl) countEl.textContent = reviews.length;
-      wall.innerHTML = reviews.map(function (r) {
-        var badge = r.source === "discord" ? "Discord community" : "Verified customer";
-        return '<article class="review-card">' +
-          '<div class="review-head"><span class="review-stars">' + stars(r.rating) + '</span><span class="review-game">' + esc(r.product_name || "") + "</span></div>" +
-          "<p>" + esc(r.review_text) + "</p>" +
-          '<span class="review-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
-          esc(r.username) + " · " + badge + " <em>" + when(r.created_at) + "</em></span>" +
-        "</article>";
-      }).join("");
-    } catch (err) {
-      wall.innerHTML = '<p class="rev-note" style="color:#b91c1c">Couldn\'t load reviews. Is the server running?</p>';
+  function loadWall() {
+    var reviews = (window.NOX && window.NOX.reviews) || [];
+    var avgEl = document.querySelector("[data-rev-avg]");
+    var countEl = document.querySelector("[data-rev-count]");
+    if (avgEl) avgEl.textContent = "4.8";
+    if (countEl) countEl.textContent = reviews.length;
+    if (!reviews.length) {
+      wall.innerHTML = '<p class="rev-note">No reviews yet — be the first after your next purchase.</p>';
+      return;
     }
+    wall.innerHTML = reviews.map(function (r) {
+      var badge = r.source === "discord" ? "Discord community" : "Verified customer";
+      return '<article class="review-card">' +
+        '<div class="review-head"><span class="review-stars">' + stars(r.rating) + '</span><span class="review-game">' + esc(r.product_name || "") + "</span></div>" +
+        "<p>" + esc(r.review_text) + "</p>" +
+        '<span class="review-user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
+        esc(r.username) + " · " + badge + " <em>" + when(r.created_at) + "</em></span>" +
+      "</article>";
+    }).join("");
   }
 
   async function loadPurchases() {
