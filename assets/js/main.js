@@ -517,11 +517,8 @@
               '<div class="cover-count">' + p.count + ' ' + (p.count === 1 ? 'product' : 'products') + '</div>' +
             '</div>' +
             '<span class="cover-shine"></span>' +
+            '<span class="game-view"><span class="game-view-btn">View <span class="arrow">→</span></span></span>' +
           '</a>' +
-          '<div class="coll-foot">' +
-            '<span class="browse-label">' + p.tagline + '</span>' +
-            '<a class="game-btn" href="collection.html?game=' + p.cat + '#products">View <span>→</span></a>' +
-          '</div>' +
         '</article>';
     }
 
