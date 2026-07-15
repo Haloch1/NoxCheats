@@ -25,7 +25,7 @@
   var id = (new URLSearchParams(location.search).get("id") || "").toLowerCase();
   var p = window.NOX.bySlug[id] || window.NOX.list[0];
   var game = window.NOX.games[p.game];
-  var st = STATUS[p.status];
+  var st = STATUS[p.status] || STATUS.undetected;
   var durs = window.NOX.durations(p);
   var groups = window.NOX.featureGroups(p);
   var rev = window.NOX.reviewData(p);
