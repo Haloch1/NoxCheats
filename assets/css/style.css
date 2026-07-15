@@ -3642,7 +3642,7 @@ body.cart-open .cart-drawer { transform: translateX(0); }
    PER-PRODUCT PHOTO — fills the cover; if the file is missing it removes
    itself (see NOX.productImg) and the gradient + monogram shows instead.
    ========================================================================== */
-.prod-cover, .pg-stage, .rel-card { position: relative; overflow: hidden; }
+.prod-cover, .pg-stage, .rel-card, .cart-item-cover { position: relative; overflow: hidden; }
 .prod-photo {
   position: absolute;
   inset: 0;

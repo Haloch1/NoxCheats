@@ -71,7 +71,9 @@
 
     listEl.innerHTML = items.map(function (i, idx) {
       return '<div class="cart-item">' +
-        '<span class="cart-item-cover ' + esc(i.cover || "cover-generic") + '">' + esc(monogram(i.productName)) + '</span>' +
+        '<span class="cart-item-cover ' + esc(i.cover || "cover-generic") + '">' +
+          ((window.NOX && window.NOX.productImg) ? window.NOX.productImg({ slug: i.productSlug, name: i.productName }) : "") +
+          esc(monogram(i.productName)) + '</span>' +
         '<div class="cart-item-main">' +
           '<div class="cart-item-name">' + esc(i.productName) + '</div>' +
           '<div class="cart-item-variant">' + esc(i.variantName) + '</div>' +
