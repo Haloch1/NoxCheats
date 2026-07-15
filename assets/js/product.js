@@ -99,6 +99,11 @@
 
   var sel = durs[defaultDur];
 
+  // product photo: sharp contained image + a blurred "cover" copy that fills
+  // the letterbox so there's no flat empty space around it
+  var pImg = window.NOX.productImg(p);
+  var pImgBg = pImg.replace('class="prod-photo"', 'class="prod-photo-bg" aria-hidden="true"');
+
   main.innerHTML =
   '<section class="pg-hero">' +
     '<div class="container">' +
@@ -107,7 +112,7 @@
         // media
         '<div class="pg-media reveal">' +
           '<div class="pg-stage ' + p.cover + '">' +
-            window.NOX.productImg(p) +
+            pImgBg + pImg +
             '<span class="cover-mono">' + mono(p.name) + '</span>' +
             '<span class="cover-shine"></span>' +
           '</div>' +

@@ -506,7 +506,7 @@
       var popular = i === 0;
       return '' +
         '<article class="game-card collection reveal ' + delay + (popular ? " featured" : "") + '" data-cat="' + p.cat + '" data-name="' + p.name.toLowerCase() + '">' +
-          '<a class="game-cover ' + p.cover + '" href="collection.html?game=' + p.cat + '">' +
+          '<a class="game-cover ' + p.cover + '" href="collection.html?game=' + p.cat + '#products">' +
             '<span class="cover-mono">' + monogram(p.name) + '</span>' +
             (popular ? '<span class="popular-flag">★ Most popular</span>' : '') +
             '<span class="status-badge ' + st.cls + '"><i></i>' + st.label + '</span>' +
@@ -518,7 +518,7 @@
           '</a>' +
           '<div class="coll-foot">' +
             '<span class="browse-label">' + p.tagline + '</span>' +
-            '<a class="game-btn" href="collection.html?game=' + p.cat + '">View <span>→</span></a>' +
+            '<a class="game-btn" href="collection.html?game=' + p.cat + '#products">View <span>→</span></a>' +
           '</div>' +
         '</article>';
     }
@@ -548,7 +548,7 @@
         card.addEventListener("click", function (e) {
           // let real links (cover, View button) behave normally
           if (e.target.closest("a")) return;
-          window.location.href = "collection.html?game=" + cat;
+          window.location.href = "collection.html?game=" + cat + "#products";
         });
       }
     });
