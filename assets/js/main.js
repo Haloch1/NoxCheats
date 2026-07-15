@@ -741,3 +741,20 @@
   var yr = document.querySelector("[data-year]");
   if (yr) yr.textContent = new Date().getFullYear();
 })();
+
+/* anti-cheat compare slider: drag to reveal */
+(function () {
+  var cmps = document.querySelectorAll("[data-compare]");
+  if (!cmps.length) return;
+  cmps.forEach(function (cmp) {
+    var dragging = false;
+    function set(clientX) {
+      var r = cmp.getBoundingClientRect();
+      var p = Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100));
+      cmp.style.setProperty("--pos", p + "%");
+    }
+    cmp.addEventListener("pointerdown", function (e) { dragging = true; try { cmp.setPointerCapture(e.pointerId); } catch (x) {} set(e.clientX); });
+    cmp.addEventListener("pointermove", function (e) { if (dragging) set(e.clientX); });
+    window.addEventListener("pointerup", function () { dragging = false; });
+  });
+})();
