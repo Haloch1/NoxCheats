@@ -3714,7 +3714,7 @@ body.cart-open .cart-drawer { transform: translateX(0); }
 .game-cover .status-badge, .game-cover .popular-flag { z-index: 3; }
 .game-cover .game-logo {
   position: absolute; top: 42%; left: 50%; transform: translate(-50%, -50%);
-  max-width: 54%; max-height: 34%; object-fit: contain; z-index: 3;
+  max-width: 80%; max-height: 50%; object-fit: contain; z-index: 3;
   filter: drop-shadow(0 6px 16px rgba(0,0,0,.55));
   transition: transform .25s ease;
 }
