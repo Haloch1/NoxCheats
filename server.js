@@ -1434,8 +1434,8 @@ async function handleDiscordReview(message) {
   const reviewText = String(message.content || "").trim();
   const username = message.member?.displayName || message.author.username || "Discord member";
   const authorId = message.author.id;
-  const isAdmin = botAdmins.includes(authorId);
-  if (reviewText.length < 3) { try { await message.delete(); } catch { /* ignore */ } return; }
+  const isAdmin = await isBotAdmin(authorId, message.guild);
+  if (reviewText.length < 3) { if (!isAdmin) { try { await message.delete(); } catch { /* ignore */ } } return; }
 
   /* One review per person, ever — admins can post as many as they like. */
   if (!isAdmin) {
@@ -1478,6 +1478,9 @@ async function handleDiscordReview(message) {
       discord_user_id: authorId,
     });
   } catch (err) { console.error("[review bot] insert:", err.message); }
+
+  /* Bot admins: their review is logged but their original message is never removed. */
+  if (isAdmin) return;
 
   const channel = message.channel;
   try { await message.delete(); } catch { /* bot needs Manage Messages permission */ }
