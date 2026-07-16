@@ -857,6 +857,34 @@ async function setSetting(key, value) {
 async function storeOpen() {
   return (await getSetting("store_open", "true")) !== "false";
 }
+async function siteMaintenance() {
+  return (await getSetting("site_maintenance", "false")) === "true";
+}
+/* Bot access: .env owners are permanent super-admins; extra staff can be
+   granted at runtime and are stored in the settings table. */
+async function dynamicBotAdmins() {
+  const raw = await getSetting("bot_admins", "");
+  return String(raw || "").split(",").map((s) => s.trim()).filter(Boolean);
+}
+function isSuperAdmin(userId, guild) {
+  if (botAdmins.includes(userId)) return true;
+  try { if (guild && guild.ownerId === userId) return true; } catch (e) {}
+  return false;
+}
+async function isBotAdmin(userId, guild) {
+  if (isSuperAdmin(userId, guild)) return true;
+  return (await dynamicBotAdmins()).includes(userId);
+}
+function parseUserId(s) { const m = String(s || "").match(/(\d{16,20})/); return m ? m[1] : null; }
+
+/* Whole-site maintenance page (503) shown when the kill-switch is on. */
+const MAINTENANCE_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Down for maintenance — Nox Cheats</title>
+<style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(120% 120% at 50% 0,#0f1830,#070b14);color:#e8f0ff;font-family:'Segoe UI',system-ui,sans-serif;text-align:center;padding:24px}
+.c{max-width:460px}.dot{width:12px;height:12px;border-radius:50%;background:#38bdf8;box-shadow:0 0 16px #38bdf8;margin:0 auto 22px;animation:p 1.6s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}h1{font-size:26px;margin:0 0 10px}p{color:#9fb2cc;font-size:15px;line-height:1.6;margin:0}
+b{color:#38bdf8}</style></head><body><div class="c"><div class="dot"></div>
+<h1><b>NOX</b> CHEATS</h1><p>We're down for scheduled maintenance and will be back shortly. Thanks for your patience.</p></div></body></html>`;
 
 /* =====================================================================
    WALLET / BALANCE
@@ -1147,6 +1175,14 @@ app.post("/api/admin/settings", requireAdmin, async (req, res) => {
   if (typeof req.body?.storeOpen === "boolean") await setSetting("store_open", req.body.storeOpen);
   res.json({ ok: true, storeOpen: await storeOpen() });
 });
+/* Maintenance kill-switch — recovery path from the admin panel (also togglable via the bot). */
+app.get("/api/admin/maintenance", requireAdmin, async (req, res) => {
+  res.json({ maintenance: await siteMaintenance() });
+});
+app.post("/api/admin/maintenance", requireAdmin, async (req, res) => {
+  if (typeof req.body?.on === "boolean") await setSetting("site_maintenance", req.body.on);
+  res.json({ ok: true, maintenance: await siteMaintenance() });
+});
 
 /* =====================================================================
    AUTH — Google OAuth (same synthetic-session pattern as Discord)
@@ -1245,6 +1281,22 @@ app.use((req, res, next) => {
     return res.status(404).end();
   }
   next();
+});
+
+/* Global maintenance kill-switch — toggled from the Discord bot (!lockdown / !online).
+   Admin, login and asset paths stay open so an owner can always recover. */
+app.use(async (req, res, next) => {
+  try { if (!(await siteMaintenance())) return next(); } catch (e) { return next(); }
+  const p = req.path.toLowerCase();
+  const allow =
+    p === "/favicon.ico" ||
+    p.startsWith("/assets/") ||
+    p.startsWith("/admin") ||
+    p.startsWith("/account") ||
+    p.startsWith("/api/admin") ||
+    p.startsWith("/api/auth");
+  if (allow) return next();
+  return res.status(503).type("html").send(MAINTENANCE_HTML);
 });
 
 /* Serves index.html, store.html, product.html, account.html, admin.html, etc.
@@ -1473,6 +1525,12 @@ async function initDeskBot() {
   client.on(Events.MessageCreate, async (message) => {
     try {
       if (message.author.bot) return;                       // ignore our own echoes
+      /* Admin commands (!lockdown, !online, !grant, …) work in any channel. */
+      const _content = String(message.content || "").trim();
+      if (_content.startsWith("!")) {
+        const handled = await handleBotCommand(message, _content).catch((e) => { console.error("[bot cmd]", e.message); return false; });
+        if (handled) return;
+      }
       /* Community review channel -> publish on the reviews page. */
       if (DISCORD_REVIEW_CHANNEL_ID && message.channel.id === DISCORD_REVIEW_CHANNEL_ID) {
         await handleDiscordReview(message).catch((e) => console.error("[review bot]", e.message));
@@ -1501,6 +1559,89 @@ async function initDeskBot() {
   } catch (err) {
     console.error("[desk bot] login failed:", err.message);
   }
+}
+
+/* =====================================================================
+   DISCORD BOT COMMANDS — maintenance kill-switch + access management
+   Returns true if the message was a recognized command (so it's not
+   relayed as a ticket/review).
+   ===================================================================== */
+async function handleBotCommand(message, content) {
+  const parts = content.slice(1).trim().split(/\s+/);
+  const cmd = (parts[0] || "").toLowerCase();
+  const KNOWN = ["help", "nox", "status", "lockdown", "break", "maintenance", "online", "restore", "perms", "admins", "grant", "revoke"];
+  if (!KNOWN.includes(cmd)) return false;
+
+  const uid = message.author.id;
+  const guild = message.guild;
+  const reply = (t) => message.reply(t).catch(() => {});
+
+  if (cmd === "help" || cmd === "nox") {
+    await reply([
+      "**Nox bot — admin commands**",
+      "`!status` — show site + store state",
+      "`!lockdown yes` — take the **whole site offline** (maintenance mode)",
+      "`!online` — bring the site back up",
+      "`!perms` — list who can use the bot",
+      "`!grant @user` — give a staff member bot access *(owner only)*",
+      "`!revoke @user` — remove access *(owner only)*",
+    ].join("\n"));
+    return true;
+  }
+
+  if (!(await isBotAdmin(uid, guild))) {
+    await reply("⛔ You don't have permission to use this bot.");
+    return true;
+  }
+
+  if (cmd === "status") {
+    await reply(`Site: ${(await siteMaintenance()) ? "🔴 maintenance (offline)" : "🟢 live"}  ·  Store: ${(await storeOpen()) ? "🟢 open" : "🔴 closed"}`);
+    return true;
+  }
+
+  if (cmd === "lockdown" || cmd === "break" || (cmd === "maintenance" && (parts[1] || "").toLowerCase() === "on")) {
+    const arg = (parts[1] || "").toLowerCase(), arg2 = (parts[2] || "").toLowerCase();
+    const confirmed = ["yes", "confirm", "on"].includes(arg) || ["yes", "confirm"].includes(arg2);
+    if (!confirmed) {
+      await reply("⚠️ This takes the **entire website offline** for everyone (a maintenance page). Run `!lockdown yes` to confirm.");
+      return true;
+    }
+    await setSetting("site_maintenance", "true");
+    await reply(`🔴 Site is now in **maintenance mode** — offline to the public. Taken down by <@${uid}>. Run \`!online\` to restore.`);
+    return true;
+  }
+
+  if (cmd === "online" || cmd === "restore" || (cmd === "maintenance" && (parts[1] || "").toLowerCase() === "off")) {
+    await setSetting("site_maintenance", "false");
+    await reply(`🟢 Site restored — back online. Restored by <@${uid}>.`);
+    return true;
+  }
+
+  if (cmd === "perms" || cmd === "admins") {
+    const dyn = await dynamicBotAdmins();
+    await reply(
+      "**Bot access**\n" +
+      `Owners: ${botAdmins.length ? botAdmins.map((x) => `<@${x}>`).join(", ") : "—"}\n` +
+      `Granted staff: ${dyn.length ? dyn.map((x) => `<@${x}>`).join(", ") : "—"}`
+    );
+    return true;
+  }
+
+  if (cmd === "grant" || cmd === "revoke") {
+    if (!isSuperAdmin(uid, guild)) {
+      await reply("⛔ Only an owner can grant or revoke bot access.");
+      return true;
+    }
+    const target = (message.mentions?.users?.first?.() || {}).id || parseUserId(parts[1]);
+    if (!target) { await reply(`Usage: \`!${cmd} @user\``); return true; }
+    if (botAdmins.includes(target)) { await reply("That user is a permanent owner (set in the server config)."); return true; }
+    const set = new Set(await dynamicBotAdmins());
+    if (cmd === "grant") { set.add(target); await setSetting("bot_admins", [...set].join(",")); await reply(`✅ <@${target}> can now use the bot.`); }
+    else { set.delete(target); await setSetting("bot_admins", [...set].join(",")); await reply(`✅ Removed <@${target}> from bot access.`); }
+    return true;
+  }
+
+  return false;
 }
 
 app.listen(PORT, () => {
