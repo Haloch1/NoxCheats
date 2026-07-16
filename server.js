@@ -1286,16 +1286,10 @@ app.use((req, res, next) => {
 /* Global maintenance kill-switch — toggled from the Discord bot (!lockdown / !online).
    Admin, login and asset paths stay open so an owner can always recover. */
 app.use(async (req, res, next) => {
+  // Emergency owner bypass: set MAINTENANCE_OVERRIDE=off in the env and redeploy.
+  if (String(process.env.MAINTENANCE_OVERRIDE || "").toLowerCase() === "off") return next();
   try { if (!(await siteMaintenance())) return next(); } catch (e) { return next(); }
-  const p = req.path.toLowerCase();
-  const allow =
-    p === "/favicon.ico" ||
-    p.startsWith("/assets/") ||
-    p.startsWith("/admin") ||
-    p.startsWith("/account") ||
-    p.startsWith("/api/admin") ||
-    p.startsWith("/api/auth");
-  if (allow) return next();
+  // Hard lockdown: EVERYTHING is offline — pages, assets, admin panel and all APIs.
   return res.status(503).type("html").send(MAINTENANCE_HTML);
 });
 
@@ -1603,15 +1597,16 @@ async function handleBotCommand(message, content) {
     const arg = (parts[1] || "").toLowerCase(), arg2 = (parts[2] || "").toLowerCase();
     const confirmed = ["yes", "confirm", "on"].includes(arg) || ["yes", "confirm"].includes(arg2);
     if (!confirmed) {
-      await reply("⚠️ This takes the **entire website offline** for everyone (a maintenance page). Run `!lockdown yes` to confirm.");
+      await reply("⚠️ This takes the **ENTIRE site offline** — every page, the store, and even the admin panel go dark, and it stays down until an **owner** runs `!online`. Run `!lockdown yes` to confirm.");
       return true;
     }
     await setSetting("site_maintenance", "true");
-    await reply(`🔴 Site is now in **maintenance mode** — offline to the public. Taken down by <@${uid}>. Run \`!online\` to restore.`);
+    await reply(`🔴 **Site fully locked down** — everything is offline (pages, store, admin) and stays down until an owner runs \`!online\`. Locked by <@${uid}>.`);
     return true;
   }
 
   if (cmd === "online" || cmd === "restore" || (cmd === "maintenance" && (parts[1] || "").toLowerCase() === "off")) {
+    if (!isSuperAdmin(uid, guild)) { await reply("⛔ Only an owner can bring the site back up."); return true; }
     await setSetting("site_maintenance", "false");
     await reply(`🟢 Site restored — back online. Restored by <@${uid}>.`);
     return true;
